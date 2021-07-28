@@ -37,8 +37,11 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Graphics\DCamera.cs" />
     <Compile Include="Graphics\DDX11.cs" />
     <Compile Include="Graphics\DGraphics.cs" />
+    <Compile Include="Graphics\DModel.cs" />
+    <Compile Include="Graphics\DTriangleColorShader.cs" />
     <Compile Include="Input\DInput.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="System\DSystem.cs" />
@@ -69,6 +72,10 @@
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Shaders\Tut04VertexShader.hlsl" />
+    <Content Include="Shaders\Tut04PixelShader.hlsl" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

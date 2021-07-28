@@ -24,6 +24,8 @@ namespace SharpDXPractice.Graphics
         public D3D11.DepthStencilState DepthStencilState { get; set; }
         private D3D11.DepthStencilView DepthStencilView { get; set; }
         private D3D11.RasterizerState RasterizerState { get; set; }
+        public Matrix ProjectionMatrix { get; set; }
+        public Matrix WorldMatrix { get; set; }
 
         public DDX11()
         {
@@ -223,6 +225,13 @@ namespace SharpDXPractice.Graphics
 
                 // Set up and create the viewport for rendering
                 DeviceContext.Rasterizer.SetViewport(0, 0, config.Width, config.Height, 0, 1);
+
+                // Set up and create projection matrix
+                ProjectionMatrix = Matrix.PerspectiveFovLH((float)(Math.PI / 4), ((float)config.Width / (float)config.Height), DSystemConfiguration.ScreenNear, DSystemConfiguration.ScreenDepth);
+
+                // Initialize the world martix to the identity matrix
+                WorldMatrix = Matrix.Identity;
+
                 return true; // All operations successful
             }
             catch
@@ -277,9 +286,9 @@ namespace SharpDXPractice.Graphics
         public void EndScene()
         {
             if (VSyncEnabled)
-                SwapChain.Present(1, 0); // Lock to screen's refresh rate
+                SwapChain.Present(1, PresentFlags.None); // Lock to screen's refresh rate
             else
-                SwapChain.Present(0, 0); // Present as fast as possible
+                SwapChain.Present(0, PresentFlags.None); // Present as fast as possible
         } 
     }
 }
