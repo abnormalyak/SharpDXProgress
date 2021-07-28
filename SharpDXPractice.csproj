@@ -37,10 +37,12 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Graphics\DDX11.cs" />
     <Compile Include="Graphics\DGraphics.cs" />
     <Compile Include="Input\DInput.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="System\DSystem.cs" />
+    <Compile Include="System\DSystemConfiguration.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="SharpDX, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">

@@ -8,92 +8,102 @@ using System.Windows.Forms;
 using SharpDX.Windows;
 using SharpDXPractice.Input;
 using SharpDXPractice.Graphics;
+using SharpDXPractice.System;
 
 
 namespace SharpDXPractice
 {
-    public class DSystem : IDisposable
+    public class DSystem                    // 120 lines
     {
-        private RenderForm _renderForm { get; set; }
-        public int Width = 1280;
-        public int Height = 720;
+        // Properties
+        private RenderForm RenderForm { get; set; }
+        public DSystemConfiguration Configuration { get; private set; }
         public DInput Input { get; private set; }
         public DGraphics Graphics { get; private set; }
 
+        // Constructor
         public DSystem() { }
 
-        public void StartRenderForm(string title)
+        public static void StartRenderForm(string title, int width, int height, bool vSync, bool fullScreen = true)
         {
-            Initialize(title);
-            RunRenderForm();
-
+            DSystem system = new DSystem();
+            system.Initialize(title, width, height, vSync, fullScreen);
+            system.RunRenderForm();
         }
 
-        public virtual void Initialize(string title)
+        // Methods
+        public virtual bool Initialize(string title, int width, int height, bool vSync, bool fullScreen)
         {
-            InitializeWindows(title);
+            bool result = false;
 
-            _renderForm.BackColor = Color.Black;
+            if (Configuration == null)
+                Configuration = new DSystemConfiguration(title, width, height, fullScreen, vSync);
+
+            // Initialize Window.
+            InitializeWindows(title);
 
             if (Input == null)
             {
                 Input = new DInput();
                 Input.Initialize();
             }
-
             if (Graphics == null)
             {
                 Graphics = new DGraphics();
+                result = Graphics.Initialize(Configuration, RenderForm.Handle);
             }
-        }
 
+            return result;
+        }
         private void InitializeWindows(string title)
         {
             int width = Screen.PrimaryScreen.Bounds.Width;
             int height = Screen.PrimaryScreen.Bounds.Height;
 
-            _renderForm = new RenderForm(title)
+            // Initialize Window.
+            RenderForm = new RenderForm(title)
             {
-                ClientSize = new System.Drawing.Size(Width, Height)
+                ClientSize = new Size(Configuration.Width, Configuration.Height),
+                FormBorderStyle = DSystemConfiguration.BorderStyle
             };
 
-            _renderForm.Show();
-            _renderForm.Location = new Point(width / 2, height / 2);
+            // The form must be showing in order for the handle to be used in Input and Graphics objects.
+            RenderForm.Show();
+            RenderForm.Location = new Point((width / 2) - (Configuration.Width / 2), (height / 2) - (Configuration.Height / 2));
         }
-
         private void RunRenderForm()
         {
-            _renderForm.KeyDown += (s, e) => Input.KeyDown(e.KeyCode);
-            _renderForm.KeyUp += (s, e) => Input.KeyUp(e.KeyCode);
+            RenderForm.KeyDown += (s, e) => Input.KeyDown(e.KeyCode);
+            RenderForm.KeyUp += (s, e) => Input.KeyUp(e.KeyCode);
 
-            RenderLoop.Run(_renderForm, () =>
+            RenderLoop.Run(RenderForm, () =>
             {
                 if (!Frame())
                     ShutDown();
             });
         }
-
         public bool Frame()
         {
+            // Check if the user pressed escape and wants to exit the application.
             if (Input.IsKeyDown(Keys.Escape))
                 return false;
 
+            // Do the frame processing for the graphics object.
             return Graphics.Frame();
         }
-
         public void ShutDown()
         {
-            Dispose();
+            ShutdownWindows();
 
             Graphics?.ShutDown();
             Graphics = null;
             Input = null;
+            Configuration = null;
         }
-
-        public void Dispose()
+        private void ShutdownWindows()
         {
-            _renderForm?.Dispose();
-            _renderForm = null;
+            RenderForm?.Dispose();
+            RenderForm = null;
         }
     }
 }

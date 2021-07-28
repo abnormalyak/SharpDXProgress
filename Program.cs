@@ -10,10 +10,7 @@ namespace SharpDXPractice
     {
         static void Main()
         {
-            using (DSystem system = new DSystem())
-            {
-                system.StartRenderForm("SharpDX Testing");
-            }
+            DSystem.StartRenderForm("SharpDX", 1280, 720, true) ;
         }
     }
 }
