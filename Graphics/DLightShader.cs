@@ -12,7 +12,7 @@ using System.Windows.Forms;
 
 namespace SharpDXPractice.Graphics
 {
-    public class DTextureShader
+    public class DLightShader
     {
         #region Structs
         [StructLayout(LayoutKind.Sequential)]
@@ -20,6 +20,7 @@ namespace SharpDXPractice.Graphics
         {
             public Vector3 position;
             public Vector2 texture;
+            public Vector3 normal;
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -29,6 +30,14 @@ namespace SharpDXPractice.Graphics
             public Matrix view;
             public Matrix projection;
         }
+
+        [StructLayout(LayoutKind.Sequential)]
+        internal struct DLightBuffer
+        {
+            public Vector4 diffuseColor;
+            public Vector3 lightDirection;
+            public float padding; // Extra padding makes struct multiple of 16
+        }
         #endregion
 
         #region Properties
@@ -36,14 +45,15 @@ namespace SharpDXPractice.Graphics
         public PixelShader PixelShader { get; set; }
         public InputLayout InputLayout { get; set; }
         public SharpDX.Direct3D11.Buffer ConstantMatrixBuffer { get; set; }
+        public SharpDX.Direct3D11.Buffer ConstantLightBuffer { get; set; }
         public SamplerState SamplerState { get; set; }
         #endregion
 
-        public DTextureShader() { }
+        public DLightShader() { }
 
         public bool Initialize(Device device, IntPtr windowHandle)
         {
-            return InitializeShader(device, windowHandle, "Tut05TextureVS.hlsl", "Tut05TexturePS.hlsl");
+            return InitializeShader(device, windowHandle, "Tut06LightVS.hlsl", "Tut06LightPS.hlsl");
         }
 
         /// <summary>
@@ -65,13 +75,13 @@ namespace SharpDXPractice.Graphics
                 // Compile the vertex shader code
                 ShaderBytecode vertexShaderByteCode = ShaderBytecode.CompileFromFile(
                     vsFileName,
-                    "TextureVertexShader",
+                    "LightVertexShader",
                     "vs_4_0",
                     ShaderFlags.None,
                     EffectFlags.None);
                 ShaderBytecode pixelShaderByteCode = ShaderBytecode.CompileFromFile(
                     psFileName,
-                    "TexturePixelShader",
+                    "LightPixelShader",
                     "ps_4_0",
                     ShaderFlags.None,
                     EffectFlags.None);
@@ -83,26 +93,36 @@ namespace SharpDXPractice.Graphics
                 // Set up the layout of the data which goes into the shader
                 InputElement[] inputElements = new InputElement[]
                 {
-                new InputElement()
-                {
-                    SemanticName = "POSITION",
-                    SemanticIndex = 0,
-                    Format = SharpDX.DXGI.Format.R32G32B32_Float,
-                    Slot = 0,
-                    AlignedByteOffset = 0,
-                    Classification = InputClassification.PerVertexData,
-                    InstanceDataStepRate = 0
-                },
-                new InputElement()
-                {
-                    SemanticName = "TEXCOORD",
-                    SemanticIndex = 0,
-                    Format = SharpDX.DXGI.Format.R32G32_Float,
-                    Slot = 0,
-                    AlignedByteOffset = InputElement.AppendAligned,
-                    Classification = InputClassification.PerVertexData,
-                    InstanceDataStepRate = 0
-                }
+                    new InputElement()
+                    {
+                        SemanticName = "POSITION",
+                        SemanticIndex = 0,
+                        Format = SharpDX.DXGI.Format.R32G32B32_Float,
+                        Slot = 0,
+                        AlignedByteOffset = 0,
+                        Classification = InputClassification.PerVertexData,
+                        InstanceDataStepRate = 0
+                    },
+                    new InputElement()
+                    {
+                        SemanticName = "TEXCOORD",
+                        SemanticIndex = 0,
+                        Format = SharpDX.DXGI.Format.R32G32_Float,
+                        Slot = 0,
+                        AlignedByteOffset = InputElement.AppendAligned,
+                        Classification = InputClassification.PerVertexData,
+                        InstanceDataStepRate = 0
+                    },
+                    new InputElement()
+                    {
+                        SemanticName = "NORMAL",
+                        SemanticIndex = 0,
+                        Format = SharpDX.DXGI.Format.R32G32B32_Float,
+                        Slot = 0,
+                        AlignedByteOffset = InputElement.AppendAligned,
+                        Classification = InputClassification.PerVertexData,
+                        InstanceDataStepRate = 0
+                    }
                 };
 
                 InputLayout = new InputLayout(device,
@@ -129,7 +149,7 @@ namespace SharpDXPractice.Graphics
                 // Create a texture sampler state description
                 SamplerStateDescription samplerDesc = new SamplerStateDescription()
                 {
-                    Filter = Filter.MinMagLinearMipPoint,
+                    Filter = Filter.MinimumMinMagMipLinear,
                     AddressU = TextureAddressMode.Wrap,
                     AddressV = TextureAddressMode.Wrap,
                     AddressW = TextureAddressMode.Wrap,
@@ -142,6 +162,19 @@ namespace SharpDXPractice.Graphics
                 };
 
                 SamplerState = new SamplerState(device, samplerDesc);
+
+                BufferDescription lightBufferDesc = new BufferDescription()
+                {
+                    Usage = ResourceUsage.Dynamic,
+                    SizeInBytes = Utilities.SizeOf<DLightBuffer>(),
+                    BindFlags = BindFlags.ConstantBuffer,
+                    CpuAccessFlags = CpuAccessFlags.Write,
+                    OptionFlags = ResourceOptionFlags.None,
+                    StructureByteStride = 0
+                };
+
+                // Create the constant buffer pointer to allow access to the vertex shader constant buffer
+                ConstantLightBuffer = new SharpDX.Direct3D11.Buffer(device, lightBufferDesc);
 
                 return true;
             }
@@ -158,12 +191,14 @@ namespace SharpDXPractice.Graphics
         }
 
         public bool Render(
-            DeviceContext deviceContext, 
-            int indexCount, 
-            Matrix worldMatrix, Matrix viewMatrix, Matrix projectionMatrix, 
-            ShaderResourceView texture)
+            DeviceContext deviceContext,
+            int indexCount,
+            Matrix worldMatrix, Matrix viewMatrix, Matrix projectionMatrix,
+            ShaderResourceView texture,
+            Vector3 lightDirection,
+            Vector4 diffuseColor)
         {
-            if (!SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texture))
+            if (!SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texture, lightDirection, diffuseColor))
                 return false;
 
             RenderShader(deviceContext, indexCount);
@@ -177,6 +212,9 @@ namespace SharpDXPractice.Graphics
         /// </summary>
         public void ShutDownShader()
         {
+            ConstantLightBuffer?.Dispose();
+            ConstantLightBuffer = null;
+
             SamplerState?.Dispose();
             SamplerState = null;
 
@@ -193,9 +231,9 @@ namespace SharpDXPractice.Graphics
             VertexShader = null;
         }
         private bool SetShaderParameters(
-            DeviceContext deviceContext, 
-            Matrix worldMatrix, Matrix viewMatrix, Matrix projectionMatrix, 
-            ShaderResourceView texture)
+            DeviceContext deviceContext,
+            Matrix worldMatrix, Matrix viewMatrix, Matrix projectionMatrix,
+            ShaderResourceView texture, Vector3 lightDirection, Vector4 diffuseColor)
         {
             try
             {
@@ -231,6 +269,28 @@ namespace SharpDXPractice.Graphics
 
                 // Set shader resource in the pixel shader
                 deviceContext.PixelShader.SetShaderResource(0, texture);
+
+                // Lock light constant buffer so it cna be written to
+                deviceContext.MapSubresource(ConstantLightBuffer,
+                    MapMode.WriteDiscard,
+                    MapFlags.None,
+                    out mappedResource);
+
+                // Copy lighting variables into constant buffer
+                DLightBuffer lightBuffer = new DLightBuffer()
+                {
+                    diffuseColor = diffuseColor,
+                    lightDirection = lightDirection,
+                    padding = 0
+                };
+                mappedResource.Write(lightBuffer);
+
+                // Unlock constant buffer
+                deviceContext.UnmapSubresource(ConstantLightBuffer, 0);
+
+                bufferSlotNumber = 0;
+
+                deviceContext.PixelShader.SetConstantBuffer(bufferSlotNumber, ConstantLightBuffer);
 
                 return true;
             }

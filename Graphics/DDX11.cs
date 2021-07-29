@@ -206,7 +206,7 @@ namespace SharpDXPractice.Graphics
                 var rasterDesc = new D3D11.RasterizerStateDescription()
                 {
                     IsAntialiasedLineEnabled = false,
-                    CullMode = D3D11.CullMode.Back, // Do not draw triangles that are back-facing
+                    CullMode = D3D11.CullMode.None, // Do not draw triangles that are back-facing
                     DepthBias = 0,
                     DepthBiasClamp = 0.0f,
                     IsDepthClipEnabled = true,

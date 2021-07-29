@@ -63,28 +63,39 @@ namespace SharpDXPractice.Graphics
                      * Have all color params as = new Vector4(1, 0, 0, 1)
                      */
                     // Bottom left
-                    new DTextureShader.DVertex()
+                    new DLightShader.DVertex()
                     {
                         position = new Vector3(-1, -1, 0),
                         texture = new Vector2(0, 1),
+                        /*
+                         * The normal is a line perpendicular to the face of the polygon
+                         * so the exact direction the face is pointing can be calculated.
+                         * Here, for simplicity, the normal for each vertex is along the 
+                         * Z axis; setting each component to -1.0f makes the normal point
+                         * towards the viewer (due to our current camera set-up of (0, 0, -10)).
+                         */
+                        normal = new Vector3(0, 0, -1.0f),
                     },
                     // Top left
-                    new DTextureShader.DVertex()
+                    new DLightShader.DVertex()
                     {
                         position = new Vector3(-1, 1, 0),
                         texture = new Vector2(0, 0),
+                        normal = new Vector3(0, 0, -1.0f),
                     },
                     // Top right
-                    new DTextureShader.DVertex()
+                    new DLightShader.DVertex()
                     {
                         position = new Vector3(1, 1, 0),
                         texture = new Vector2(1, 0),
+                        normal = new Vector3(0, 0, -1.0f),
                     },
                     // Bottom right
-                    new DTextureShader.DVertex()
+                    new DLightShader.DVertex()
                     {
                         position = new Vector3(1, -1, 0),
-                        texture = new Vector2(1, 1)
+                        texture = new Vector2(1, 1),
+                        normal = new Vector3(0, 0, -1.0f)
                     }
                 };
 
@@ -138,7 +149,7 @@ namespace SharpDXPractice.Graphics
                 0,
                 new D3D11.VertexBufferBinding(
                     VertexBuffer,
-                    Utilities.SizeOf<DTextureShader.DVertex>(),
+                    Utilities.SizeOf<DLightShader.DVertex>(),
                     0));
 
             deviceContext.InputAssembler.SetIndexBuffer(

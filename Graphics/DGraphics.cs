@@ -14,7 +14,9 @@ namespace SharpDXPractice.Graphics
         private DDX11 D3D { get; set; }
         private DCamera Camera { get; set; }
         private DModel Model { get; set; }
-        private DTextureShader TextureShader { get; set; }
+        private DLightShader LightShader { get; set; }
+        private DLight Light { get; set; }
+        public static float rotation { get; set; }
 
         public DGraphics() { }
 
@@ -33,7 +35,7 @@ namespace SharpDXPractice.Graphics
                 Camera = new DCamera();
 
                 // Set initial position of camera
-                Camera.SetPosition(0, 0, -10);
+                Camera.SetPosition(0, 0, -5);
                 
                 // Create the model object
                 Model = new DModel();
@@ -46,14 +48,19 @@ namespace SharpDXPractice.Graphics
                 }
                 
                 // Create the color shader object
-                TextureShader = new DTextureShader();
+                LightShader = new DLightShader();
 
                 // Initialize the color shader object
-                if (!TextureShader.Initialize(D3D.Device, windowHandle))
+                if (!LightShader.Initialize(D3D.Device, windowHandle))
                 {
-                    MessageBox.Show("Could not initialize the texture shader object.");
+                    MessageBox.Show("Could not initialize the light shader object.");
                     return false;
                 }
+
+                Light = new DLight();
+
+                Light.SetDiffuseColor(0.95f, 0.6f, 0, 1);
+                Light.SetDirection(0, 0, 1);
 
                 return true;
             } 
@@ -65,10 +72,15 @@ namespace SharpDXPractice.Graphics
         }
         public void ShutDown()
         {
+            Light = null;
+
+            LightShader?.ShutDown();
+            LightShader = null;
+
             Camera = null;
 
-            TextureShader?.ShutDown();
-            TextureShader = null;
+            LightShader?.ShutDown();
+            LightShader = null;
 
             Model?.ShutDown();
             Model = null;
@@ -79,10 +91,12 @@ namespace SharpDXPractice.Graphics
 
         public bool Frame()
         {
-            return Render();
+            Rotate();
+
+            return Render(rotation);
         }
 
-        public bool Render()
+        public bool Render(float rotation)
         {
             Matrix viewMatrix, projectionMatrix, worldMatrix;
 
@@ -97,11 +111,13 @@ namespace SharpDXPractice.Graphics
             worldMatrix = D3D.WorldMatrix;
             projectionMatrix = D3D.ProjectionMatrix;
 
+            Matrix.RotationY(rotation, out worldMatrix);
+
             // Put the model vertex and index buffers on the graphics pipeline to prepare them from drawing
             Model.Render(D3D.DeviceContext);
 
             // Render the model using the colour shader
-            if (!TextureShader.Render(D3D.DeviceContext, Model.IndexCount, worldMatrix, viewMatrix, projectionMatrix, Model.Texture.TextureResource))
+            if (!LightShader.Render(D3D.DeviceContext, Model.IndexCount, worldMatrix, viewMatrix, projectionMatrix, Model.Texture.TextureResource, Light.direction, Light.diffuseColor))
             {
                 MessageBox.Show("Texture shader failed");
                 return false;
@@ -111,6 +127,14 @@ namespace SharpDXPractice.Graphics
             D3D.EndScene();
 
             return true;
+        }
+
+        public static void Rotate()
+        {
+            rotation += (float)Math.PI * 0.001f;
+
+            if (rotation > 360)
+                rotation -= 360;
         }
     }
 }
