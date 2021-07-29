@@ -14,15 +14,24 @@ namespace SharpDXPractice.Graphics
         private D3D11.Buffer IndexBuffer { get; set; }
         private int VertexCount { get; set; }
         public int IndexCount { get; set; }
+        public DTexture Texture { get; private set; }
         public DModel() { }
 
-        public bool Initialize(D3D11.Device device)
+        public bool Initialize(D3D11.Device device, string texFileName)
         {
-            return InitializeBuffers(device);
+            if (!InitializeBuffers(device))
+                return false;
+
+            if (!LoadTexture(device, texFileName))
+                return false;
+
+            return true;
         }
 
         public void ShutDown()
         {
+            ReleaseTexture();
+
             ShutDownBuffers();
         }
 
@@ -54,28 +63,28 @@ namespace SharpDXPractice.Graphics
                      * Have all color params as = new Vector4(1, 0, 0, 1)
                      */
                     // Bottom left
-                    new DTriangleColorShader.DVertex()
+                    new DTextureShader.DVertex()
                     {
                         position = new Vector3(-1, -1, 0),
-                        color = new Vector4(1, 0, 0, 1)
+                        texture = new Vector2(0, 1),
                     },
                     // Top left
-                    new DTriangleColorShader.DVertex()
+                    new DTextureShader.DVertex()
                     {
                         position = new Vector3(-1, 1, 0),
-                        color = new Vector4(0, 1, 0, 1) 
+                        texture = new Vector2(0, 0),
                     },
                     // Top right
-                    new DTriangleColorShader.DVertex()
+                    new DTextureShader.DVertex()
                     {
                         position = new Vector3(1, 1, 0),
-                        color = new Vector4(0, 0, 1, 1) 
+                        texture = new Vector2(1, 0),
                     },
                     // Bottom right
-                    new DTriangleColorShader.DVertex()
+                    new DTextureShader.DVertex()
                     {
                         position = new Vector3(1, -1, 0),
-                        color = new Vector4(0, 1, 0, 1)
+                        texture = new Vector2(1, 1)
                     }
                 };
 
@@ -95,10 +104,6 @@ namespace SharpDXPractice.Graphics
 
                 // Create the index buffer
                 IndexBuffer = D3D11.Buffer.Create(device, D3D11.BindFlags.IndexBuffer, indices);
-
-                // Delete unneeded arrays
-                vertices = null;
-                indices = null;
 
                 return true;
             }
@@ -133,7 +138,7 @@ namespace SharpDXPractice.Graphics
                 0,
                 new D3D11.VertexBufferBinding(
                     VertexBuffer,
-                    Utilities.SizeOf<DTriangleColorShader.DVertex>(),
+                    Utilities.SizeOf<DTextureShader.DVertex>(),
                     0));
 
             deviceContext.InputAssembler.SetIndexBuffer(
@@ -143,6 +148,19 @@ namespace SharpDXPractice.Graphics
 
             deviceContext.InputAssembler.PrimitiveTopology =
                 SharpDX.Direct3D.PrimitiveTopology.TriangleList;
+        }
+
+        private bool LoadTexture(D3D11.Device device, string texFileName)
+        {
+            Texture = new DTexture();
+
+            return Texture.Initialize(device, texFileName);
+        }
+
+        private void ReleaseTexture()
+        {
+            Texture?.ShutDown();
+            Texture = null;
         }
 
     }

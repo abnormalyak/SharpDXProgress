@@ -41,7 +41,9 @@
     <Compile Include="Graphics\DDX11.cs" />
     <Compile Include="Graphics\DGraphics.cs" />
     <Compile Include="Graphics\DModel.cs" />
-    <Compile Include="Graphics\DTriangleColorShader.cs" />
+    <Compile Include="Archive\Tut04\DTriangleColorShader.cs" />
+    <Compile Include="Graphics\DTexture.cs" />
+    <Compile Include="Graphics\DTextureShader.cs" />
     <Compile Include="Input\DInput.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="System\DSystem.cs" />
@@ -74,8 +76,13 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Shaders\Tut04VertexShader.hlsl" />
-    <Content Include="Shaders\Tut04PixelShader.hlsl" />
+    <Content Include="Archive\Tut04\Tut04VertexShader.hlsl" />
+    <Content Include="Archive\Tut04\Tut04PixelShader.hlsl" />
+    <Content Include="Textures\sandstone.bmp">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Shaders\Tut05TexturePS.hlsl" />
+    <Content Include="Shaders\Tut05TextureVS.hlsl" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

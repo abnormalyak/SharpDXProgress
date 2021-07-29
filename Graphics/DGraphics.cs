@@ -14,7 +14,9 @@ namespace SharpDXPractice.Graphics
         private DDX11 D3D { get; set; }
         private DCamera Camera { get; set; }
         private DModel Model { get; set; }
-        private DTriangleColorShader TriShader { get; set; }
+        private DTextureShader TextureShader { get; set; }
+
+        public DGraphics() { }
 
         public bool Initialize(DSystemConfiguration config, IntPtr windowHandle)
         {
@@ -37,15 +39,21 @@ namespace SharpDXPractice.Graphics
                 Model = new DModel();
 
                 // Initialize the model
-                if (!Model.Initialize(D3D.Device))
+                if (!Model.Initialize(D3D.Device, DSystemConfiguration.TextureFilePath + "sandstone.bmp"))
+                {
+                    MessageBox.Show("Could not initialize model object.");
                     return false;
+                }
                 
                 // Create the color shader object
-                TriShader = new DTriangleColorShader();
+                TextureShader = new DTextureShader();
 
                 // Initialize the color shader object
-                if (!TriShader.Initialize(D3D.Device, windowHandle))
+                if (!TextureShader.Initialize(D3D.Device, windowHandle))
+                {
+                    MessageBox.Show("Could not initialize the texture shader object.");
                     return false;
+                }
 
                 return true;
             } 
@@ -57,8 +65,10 @@ namespace SharpDXPractice.Graphics
         }
         public void ShutDown()
         {
-            TriShader?.ShutDown();
-            TriShader = null;
+            Camera = null;
+
+            TextureShader?.ShutDown();
+            TextureShader = null;
 
             Model?.ShutDown();
             Model = null;
@@ -91,7 +101,11 @@ namespace SharpDXPractice.Graphics
             Model.Render(D3D.DeviceContext);
 
             // Render the model using the colour shader
-            TriShader.Render(D3D.DeviceContext, Model.IndexCount, worldMatrix, viewMatrix, projectionMatrix);
+            if (!TextureShader.Render(D3D.DeviceContext, Model.IndexCount, worldMatrix, viewMatrix, projectionMatrix, Model.Texture.TextureResource))
+            {
+                MessageBox.Show("Texture shader failed");
+                return false;
+            }
 
             // Present the rendered scene to the screen
             D3D.EndScene();
