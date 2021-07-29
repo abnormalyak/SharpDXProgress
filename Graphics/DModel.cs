@@ -35,8 +35,10 @@ namespace SharpDXPractice.Graphics
         {
             try
             {
-                VertexCount = 3;
-                IndexCount = 3;
+                // Number of vertices in the vertex array
+                VertexCount = 4;
+                // Number of vertices in the index array
+                IndexCount = 6;
 
                 /**
                  * Note: The vertices are created in the clockwise order of drawing them.
@@ -47,32 +49,45 @@ namespace SharpDXPractice.Graphics
                 // Create vertex array, load it with data
                 var vertices = new[]
                 {
+                    /*
+                     * Exercise 4.2: Make the triangle red
+                     * Have all color params as = new Vector4(1, 0, 0, 1)
+                     */
                     // Bottom left
                     new DTriangleColorShader.DVertex()
                     {
                         position = new Vector3(-1, -1, 0),
                         color = new Vector4(1, 0, 0, 1)
                     },
-                    // Top middle
+                    // Top left
                     new DTriangleColorShader.DVertex()
                     {
-                        position = new Vector3(0, 1, 0),
-                        color = new Vector4(0, 1, 0, 1)
+                        position = new Vector3(-1, 1, 0),
+                        color = new Vector4(0, 1, 0, 1) 
+                    },
+                    // Top right
+                    new DTriangleColorShader.DVertex()
+                    {
+                        position = new Vector3(1, 1, 0),
+                        color = new Vector4(0, 0, 1, 1) 
                     },
                     // Bottom right
                     new DTriangleColorShader.DVertex()
                     {
                         position = new Vector3(1, -1, 0),
-                        color = new Vector4(0, 0, 1, 1)
+                        color = new Vector4(0, 1, 0, 1)
                     }
                 };
 
                 // Create indices for the index buffer
                 int[] indices = new int[]
                 {
-                    0,  // Bottom left
-                    1,  // Top middle
-                    2   // Bottom right
+                    0,  
+                    1,  
+                    2,  
+                    0,
+                    2,
+                    3
                 };
 
                 // Create the vertex buffer
