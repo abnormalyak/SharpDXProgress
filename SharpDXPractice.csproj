@@ -34,6 +34,8 @@
   </PropertyGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Models\plantReduced.obj" />
+    <None Include="Models\plant_247_obj.obj" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -46,6 +48,7 @@
     <Compile Include="Archive\Tut04\DTriangleColorShader.cs" />
     <Compile Include="Graphics\DTexture.cs" />
     <Compile Include="Archive\Tut05\DTextureShader.cs" />
+    <Compile Include="ObjLoader\ObjLoader.cs" />
     <Compile Include="Input\DInput.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="System\DSystem.cs" />

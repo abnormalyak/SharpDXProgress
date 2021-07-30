@@ -1,3 +1,5 @@
 .vs/
 obj/
 bin/
+Models/plant_247_obj.mtl
+*.obj

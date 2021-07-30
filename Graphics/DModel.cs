@@ -28,14 +28,18 @@ namespace SharpDXPractice.Graphics
         public int IndexCount { get; set; }
         public DTexture Texture { get; private set; }
         public DModelFormat[] ModelObject { get; private set; }
+        public List<DModelFormat> ModelObjectList { get; private set; }
 
         public DModel() { }
 
         public bool Initialize(D3D11.Device device, string modelFileName, string texFileName)
         {
             // Load model data
-            if (!LoadModel(modelFileName))
-                return false;
+            //if (!LoadModel(modelFileName))
+            //    return false;
+
+            // Experimental (.obj loader testing)
+            ModelObjectList = ObjLoader.ObjLoader.ReadFile(DSystemConfiguration.ModelFilePath + "plantReduced.obj");
 
             if (!InitializeBuffers(device))
                 return false;
@@ -135,11 +139,23 @@ namespace SharpDXPractice.Graphics
                 var vertices = new DLightShader.DVertex[VertexCount];
                 var indices = new int[IndexCount];
 
+                // Working
+                //for (int i = 0; i < VertexCount; i++)
+                //{
+                //    vertices[i].position = new Vector3(ModelObject[i].x, ModelObject[i].y, ModelObject[i].z);
+                //    vertices[i].texture = new Vector2(ModelObject[i].tu, ModelObject[i].tv);
+                //    vertices[i].normal = new Vector3(ModelObject[i].nx, ModelObject[i].ny, ModelObject[i].nz);
+
+                //    indices[i] = i;
+                //}
+
+                // Experimental (.obj loader)
+                VertexCount = 2387;
                 for (int i = 0; i < VertexCount; i++)
                 {
-                    vertices[i].position = new Vector3(ModelObject[i].x, ModelObject[i].y, ModelObject[i].z);
-                    vertices[i].texture = new Vector2(ModelObject[i].tu, ModelObject[i].tv);
-                    vertices[i].normal = new Vector3(ModelObject[i].nx, ModelObject[i].ny, ModelObject[i].nz);
+                    vertices[i].position = new Vector3(ModelObjectList.ElementAt(i).x, ModelObjectList.ElementAt(i).y, ModelObjectList.ElementAt(i).z);
+                    vertices[i].texture = new Vector2(ModelObjectList.ElementAt(i).tu, ModelObjectList.ElementAt(i).tv);
+                    vertices[i].normal = new Vector3(ModelObjectList.ElementAt(i).nx, ModelObjectList.ElementAt(i).ny, ModelObjectList.ElementAt(i).nz);
 
                     indices[i] = i;
                 }
