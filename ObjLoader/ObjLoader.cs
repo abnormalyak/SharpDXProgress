@@ -24,15 +24,15 @@ namespace SharpDXPractice.ObjLoader
         public static List<DModel.DModelFormat> ReadFile(string filename)
         {
             List<DModel.DModelFormat> ModelObject = new List<DModel.DModelFormat>();
-
-            List<string> lines = null;
             
             try
             {
-                lines = File.ReadLines(filename).ToList();
+                StreamReader lineReader = new StreamReader(new FileStream(filename, FileMode.Open));
+                bool keepReading = true;
 
-                foreach (string line in lines)
+                while (keepReading)
                 {
+                    var line = lineReader.ReadLine();
                     if (line[0].Equals("v"))
                     {
                         var vertices = line.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
@@ -49,15 +49,13 @@ namespace SharpDXPractice.ObjLoader
                         });
                     }
                     else
-                    {
-                        return ModelObject;
-                    }
+                        keepReading = false;
                 }
-                return null;
+                return ModelObject;
             }
             catch (Exception ex)
             {
-                MessageBox.Show("ObjLoader: Could not find file. Error:\n" + ex.Message);
+                MessageBox.Show("ObjLoader: Could not read file. Error:\n" + ex.Message);
                 return null;
             }
         }

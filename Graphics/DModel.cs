@@ -35,11 +35,11 @@ namespace SharpDXPractice.Graphics
         public bool Initialize(D3D11.Device device, string modelFileName, string texFileName)
         {
             // Load model data
-            //if (!LoadModel(modelFileName))
-            //    return false;
+            if (!LoadModel(modelFileName))
+                return false;
 
             // Experimental (.obj loader testing)
-            ModelObjectList = ObjLoader.ObjLoader.ReadFile(DSystemConfiguration.ModelFilePath + "plantReduced.obj");
+            //ModelObjectList = ObjLoader.ObjLoader.ReadFile(DSystemConfiguration.ModelFilePath + "plantReduced.obj");
 
             if (!InitializeBuffers(device))
                 return false;
@@ -140,25 +140,25 @@ namespace SharpDXPractice.Graphics
                 var indices = new int[IndexCount];
 
                 // Working
-                //for (int i = 0; i < VertexCount; i++)
-                //{
-                //    vertices[i].position = new Vector3(ModelObject[i].x, ModelObject[i].y, ModelObject[i].z);
-                //    vertices[i].texture = new Vector2(ModelObject[i].tu, ModelObject[i].tv);
-                //    vertices[i].normal = new Vector3(ModelObject[i].nx, ModelObject[i].ny, ModelObject[i].nz);
-
-                //    indices[i] = i;
-                //}
-
-                // Experimental (.obj loader)
-                VertexCount = 2387;
                 for (int i = 0; i < VertexCount; i++)
                 {
-                    vertices[i].position = new Vector3(ModelObjectList.ElementAt(i).x, ModelObjectList.ElementAt(i).y, ModelObjectList.ElementAt(i).z);
-                    vertices[i].texture = new Vector2(ModelObjectList.ElementAt(i).tu, ModelObjectList.ElementAt(i).tv);
-                    vertices[i].normal = new Vector3(ModelObjectList.ElementAt(i).nx, ModelObjectList.ElementAt(i).ny, ModelObjectList.ElementAt(i).nz);
+                    vertices[i].position = new Vector3(ModelObject[i].x, ModelObject[i].y, ModelObject[i].z);
+                    vertices[i].texture = new Vector2(ModelObject[i].tu, ModelObject[i].tv);
+                    vertices[i].normal = new Vector3(ModelObject[i].nx, ModelObject[i].ny, ModelObject[i].nz);
 
                     indices[i] = i;
                 }
+
+                // Experimental (.obj loader)
+                //VertexCount = 2387;
+                //for (int i = 0; i < VertexCount; i++)
+                //{
+                //    vertices[i].position = new Vector3(ModelObjectList.ElementAt(i).x, ModelObjectList.ElementAt(i).y, ModelObjectList.ElementAt(i).z);
+                //    vertices[i].texture = new Vector2(ModelObjectList.ElementAt(i).tu, ModelObjectList.ElementAt(i).tv);
+                //    vertices[i].normal = new Vector3(ModelObjectList.ElementAt(i).nx, ModelObjectList.ElementAt(i).ny, ModelObjectList.ElementAt(i).nz);
+
+                //    indices[i] = i;
+                //}
 
                 // Create the vertex buffer
                 VertexBuffer = D3D11.Buffer.Create(device, D3D11.BindFlags.VertexBuffer, vertices);
