@@ -41,7 +41,7 @@ namespace SharpDXPractice.Graphics
                 Model = new DModel();
 
                 // Initialize the model
-                if (!Model.Initialize(D3D.Device, DSystemConfiguration.TextureFilePath + "sandstone.bmp"))
+                if (!Model.Initialize(D3D.Device, "cube.txt", "sandstone.bmp"))
                 {
                     MessageBox.Show("Could not initialize model object.");
                     return false;
@@ -111,6 +111,7 @@ namespace SharpDXPractice.Graphics
             worldMatrix = D3D.WorldMatrix;
             projectionMatrix = D3D.ProjectionMatrix;
 
+            // Rotate the world matrix by the rotation value (makes model spin)
             Matrix.RotationY(rotation, out worldMatrix);
 
             // Put the model vertex and index buffers on the graphics pipeline to prepare them from drawing
@@ -131,7 +132,7 @@ namespace SharpDXPractice.Graphics
 
         public static void Rotate()
         {
-            rotation += (float)Math.PI * 0.001f;
+            rotation += (float)Math.PI * 0.01f;
 
             if (rotation > 360)
                 rotation -= 360;

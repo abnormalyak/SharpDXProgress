@@ -23,6 +23,7 @@ namespace SharpDXPractice.System
         public static FormBorderStyle BorderStyle { get; set; }
         public static string ShaderFilePath { get; private set; }
         public static string TextureFilePath { get; private set; }
+        public static string ModelFilePath { get; private set; }
 
         // Constructors
         public DSystemConfiguration(bool fullScreen, bool vSync) : this("SharpDX Demo", fullScreen, vSync) { }
@@ -56,6 +57,7 @@ namespace SharpDXPractice.System
 
             ShaderFilePath = @"C:\Users\Wing\Documents\Practice\SharpDXPractice\Shaders\";
             TextureFilePath = @"C:\Users\Wing\Documents\Practice\SharpDXPractice\Textures\";
+            ModelFilePath = @"C:\Users\Wing\Documents\Practice\SharpDXPractice\Models\";
         }
     }
 }

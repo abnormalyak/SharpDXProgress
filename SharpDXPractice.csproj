@@ -80,6 +80,7 @@
   <ItemGroup>
     <Content Include="Archive\Tut04\Tut04VertexShader.hlsl" />
     <Content Include="Archive\Tut04\Tut04PixelShader.hlsl" />
+    <Content Include="Models\cube.txt" />
     <Content Include="Shaders\Tut06LightPS.hlsl" />
     <Content Include="Shaders\Tut06LightVS.hlsl" />
     <Content Include="Textures\sandstone.bmp">
