@@ -32,14 +32,23 @@ namespace SharpDXPractice.Graphics
 
         public DModel() { }
 
-        public bool Initialize(D3D11.Device device, string modelFileName, string texFileName)
+        public bool Initialize(D3D11.Device device, string modelFileName, string texFileName, bool convertFromObj = false)
         {
-            // Load model data
-            if (!LoadModel(modelFileName))
-                return false;
+            // ObjLoader usage
+            if (convertFromObj)
+            {
+                ObjLoader.ObjLoader objLoader = new ObjLoader.ObjLoader(DSystemConfiguration.ModelFilePath + modelFileName);
+                objLoader.ImportObj(DSystemConfiguration.ModelFilePath + "converted" + modelFileName);
 
-            // Experimental (.obj loader testing)
-            //ModelObjectList = ObjLoader.ObjLoader.ReadFile(DSystemConfiguration.ModelFilePath + "plantReduced.obj");
+                // Load model data
+                if (!LoadModel("converted" + modelFileName))
+                    return false;
+            }
+            else
+            {
+                if (!LoadModel(modelFileName))
+                    return false;
+            }
 
             if (!InitializeBuffers(device))
                 return false;
@@ -148,17 +157,6 @@ namespace SharpDXPractice.Graphics
 
                     indices[i] = i;
                 }
-
-                // Experimental (.obj loader)
-                //VertexCount = 2387;
-                //for (int i = 0; i < VertexCount; i++)
-                //{
-                //    vertices[i].position = new Vector3(ModelObjectList.ElementAt(i).x, ModelObjectList.ElementAt(i).y, ModelObjectList.ElementAt(i).z);
-                //    vertices[i].texture = new Vector2(ModelObjectList.ElementAt(i).tu, ModelObjectList.ElementAt(i).tv);
-                //    vertices[i].normal = new Vector3(ModelObjectList.ElementAt(i).nx, ModelObjectList.ElementAt(i).ny, ModelObjectList.ElementAt(i).nz);
-
-                //    indices[i] = i;
-                //}
 
                 // Create the vertex buffer
                 VertexBuffer = D3D11.Buffer.Create(device, D3D11.BindFlags.VertexBuffer, vertices);

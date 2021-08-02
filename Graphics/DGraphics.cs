@@ -35,13 +35,13 @@ namespace SharpDXPractice.Graphics
                 Camera = new DCamera();
 
                 // Set initial position of camera
-                Camera.SetPosition(0, 0, -5);
+                Camera.SetPosition(0, 2, -7);
                 
                 // Create the model object
                 Model = new DModel();
 
                 // Initialize the model
-                if (!Model.Initialize(D3D.Device, "cube.txt", "sandstone.bmp"))
+                if (!Model.Initialize(D3D.Device, "objCube.obj", "sandstone.bmp", true))
                 {
                     MessageBox.Show("Could not initialize model object.");
                     return false;

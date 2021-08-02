@@ -12,51 +12,70 @@ namespace SharpDXPractice.ObjLoader
     /// <summary>
     /// Read .obj files
     /// </summary>
-    public static class ObjLoader
+    public class ObjLoader
     {
-        enum Types
+        IEnumerable<string> fileLines = null;
+
+        public ObjLoader(string fileName)
         {
-            Vertex,
-            Normal,
-            Texture
+            fileLines = File.ReadAllLines(fileName);
         }
 
-        public static List<DModel.DModelFormat> ReadFile(string filename)
+        public void ImportObj(string destination)
         {
-            List<DModel.DModelFormat> ModelObject = new List<DModel.DModelFormat>();
-            
+            FileStream fileSave = null;
+
             try
             {
-                StreamReader lineReader = new StreamReader(new FileStream(filename, FileMode.Open));
-                bool keepReading = true;
+                List<DMayaVertex> vertices =
+                    (from line in fileLines
+                     where line.Trim().StartsWith("v ")
+                     select new DMayaVertex(line.Substring(1))).ToList();
+                List<DMayaTexture> textures =
+                    (from line in fileLines
+                     where line.Trim().StartsWith("vt ")
+                     select new DMayaTexture(line.Substring(2))).ToList();
+                List<DMayaNormal> normals =
+                    (from line in fileLines
+                     where line.Trim().StartsWith("vn ")
+                     select new DMayaNormal(line.Substring(2))).ToList();
+                List<DMayaFace> faces =
+                    (from line in fileLines
+                     where line.Trim().StartsWith("f ")
+                     select new DMayaFace(line.Substring(2))).ToList();
 
-                while (keepReading)
+                StringBuilder saveFile = new StringBuilder();
+                saveFile.AppendLine("Vertex Count: " + faces.Count * 3);
+                saveFile.AppendLine();
+                saveFile.AppendLine("Data: ");
+                saveFile.AppendLine();
+
+                foreach (var face in faces)
                 {
-                    var line = lineReader.ReadLine();
-                    if (line[0].Equals("v"))
+                    foreach (var faceIndices in face.vertices)
                     {
-                        var vertices = line.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
-                        ModelObject.Add(new DModel.DModelFormat()
-                        {
-                            x = float.Parse(vertices[0]),
-                            y = float.Parse(vertices[1]),
-                            z = float.Parse(vertices[2]),
-                            tu = 0.0f,
-                            tv = 0.0f,
-                            nx = 0.0f,
-                            ny = 0.0f,
-                            nz = 0.0f
-                        });
+                        var vertex = vertices[faceIndices.Vertex - 1];
+                        var texture = textures[faceIndices.Texture - 1];
+                        var normal = normals[faceIndices.Normal - 1];
+
+                        saveFile.AppendFormat("{0} {1} {2} ", vertex.x, vertex.y, vertex.z);
+                        saveFile.AppendFormat("{0} {1} ", texture.x, texture.y);
+                        saveFile.AppendFormat("{0} {1} {2}", normal.x, normal.y, normal.z);
+                        saveFile.AppendLine();
                     }
-                    else
-                        keepReading = false;
                 }
-                return ModelObject;
+
+                File.WriteAllText(destination, saveFile.ToString());
             }
-            catch (Exception ex)
+            finally
             {
-                MessageBox.Show("ObjLoader: Could not read file. Error:\n" + ex.Message);
-                return null;
+                if (fileSave != null)
+                {
+                    fileSave.Flush();
+                    fileSave.Close();
+                    fileSave.Dispose();
+                    fileSave = null;
+                }
             }
         }
     }

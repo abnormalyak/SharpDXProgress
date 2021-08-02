@@ -48,6 +48,10 @@
     <Compile Include="Archive\Tut04\DTriangleColorShader.cs" />
     <Compile Include="Graphics\DTexture.cs" />
     <Compile Include="Archive\Tut05\DTextureShader.cs" />
+    <Compile Include="ObjLoader\DFace.cs" />
+    <Compile Include="ObjLoader\DNormal.cs" />
+    <Compile Include="ObjLoader\DTexture.cs" />
+    <Compile Include="ObjLoader\DVertex.cs" />
     <Compile Include="ObjLoader\ObjLoader.cs" />
     <Compile Include="Input\DInput.cs" />
     <Compile Include="Program.cs" />
