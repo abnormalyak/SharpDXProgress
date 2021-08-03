@@ -41,7 +41,7 @@ namespace SharpDXPractice.Graphics
                 Model = new DModel();
 
                 // Initialize the model
-                if (!Model.Initialize(D3D.Device, "convertedobjCube.obj", "sandstone.bmp"))
+                if (!Model.Initialize(D3D.Device, "sphere.txt", "watercolor.bmp"))
                 {
                     MessageBox.Show("Could not initialize model object.");
                     return false;
