@@ -1,4 +1,5 @@
 ﻿using SharpDX;
+using SharpDXPractice.Archive.Tut05;
 using SharpDXPractice.System;
 using System;
 using System.Collections.Generic;
@@ -15,8 +16,10 @@ namespace SharpDXPractice.Graphics
         private DCamera Camera { get; set; }
         private DModel Model { get; set; }
         private DLightShader LightShader { get; set; }
+        private DTextureShader TextureShader { get; set; }
         private DLight Light { get; set; }
         public static float rotation { get; set; }
+        public DBitmap Bitmap { get; set; }
 
         public DGraphics() { }
 
@@ -40,6 +43,8 @@ namespace SharpDXPractice.Graphics
                 // Create the model object
                 Model = new DModel();
 
+                // START Comment out when using bitmap
+                /*
                 // Initialize the model
                 if (!Model.Initialize(D3D.Device, "sphere.txt", "watercolor.bmp"))
                 {
@@ -64,7 +69,23 @@ namespace SharpDXPractice.Graphics
                 Light.SetDirection(1, 0, 0);
                 Light.specularPower = 32;
                 Light.SetSpecularColor(1, 1, 1, 1);
+                */
+                // END
 
+                // START If using bitmap, uncomment
+                TextureShader = new DTextureShader();
+
+                if (!TextureShader.Initialize(D3D.Device, windowHandle))
+                {
+                    MessageBox.Show("Could not initialize texture shader object.");
+                    return false;
+                }
+
+                Bitmap = new DBitmap();
+
+                if (!Bitmap.Initialize(D3D.Device, config.Width, config.Height, "watercolor.bmp", 256, 256))
+                    return false;
+                // END
                 return true;
             } 
             catch (Exception ex)
@@ -101,7 +122,7 @@ namespace SharpDXPractice.Graphics
 
         public bool Render(float rotation)
         {
-            Matrix viewMatrix, projectionMatrix, worldMatrix;
+            Matrix viewMatrix, projectionMatrix, worldMatrix, orthoMatrix;
 
             // Clear the buffers to begin the scene
             D3D.BeginScene(0.3f, 0, 0.1f, 1.0f);
@@ -114,6 +135,11 @@ namespace SharpDXPractice.Graphics
             worldMatrix = D3D.WorldMatrix;
             projectionMatrix = D3D.ProjectionMatrix;
 
+            // Get ortho matrix
+            orthoMatrix = D3D.OrthoMatrix;
+
+            // START 3D rendering (comment out for 2D)
+            /*
             // Rotate the world matrix by the rotation value (makes model spin)
             Matrix.RotationY(rotation, out worldMatrix);
 
@@ -132,6 +158,19 @@ namespace SharpDXPractice.Graphics
                 MessageBox.Show("Texture shader failed");
                 return false;
             }
+            */
+
+            // START 2D rendering (comment out for 3D)
+            D3D.TurnZBufferOff();
+
+            if (!Bitmap.Render(D3D.DeviceContext, 100, 100))
+            {
+                return false;
+            }
+
+            if (!TextureShader.Render(D3D.DeviceContext, Bitmap.IndexCount, worldMatrix, viewMatrix, orthoMatrix, Bitmap.Texture.TextureResource))
+                return false;
+            // END
 
             // Present the rendered scene to the screen
             D3D.EndScene();

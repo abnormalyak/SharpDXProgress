@@ -22,10 +22,12 @@ namespace SharpDXPractice.Graphics
         private D3D11.RenderTargetView RenderTargetView { get; set; }
         private D3D11.Texture2D DepthStencilBuffer { get; set; }
         public D3D11.DepthStencilState DepthStencilState { get; set; }
+        public D3D11.DepthStencilState DepthDisabledStencilState { get; set; }
         private D3D11.DepthStencilView DepthStencilView { get; set; }
         private D3D11.RasterizerState RasterizerState { get; set; }
         public Matrix ProjectionMatrix { get; set; }
         public Matrix WorldMatrix { get; set; }
+        public Matrix OrthoMatrix { get; private set; }
 
         public DDX11()
         {
@@ -232,6 +234,34 @@ namespace SharpDXPractice.Graphics
                 // Initialize the world martix to the identity matrix
                 WorldMatrix = Matrix.Identity;
 
+                OrthoMatrix = Matrix.OrthoLH(config.Width, config.Height, DSystemConfiguration.ScreenNear, DSystemConfiguration.ScreenDepth);
+
+                var depthDisabledStencilStateDesc = new D3D11.DepthStencilStateDescription()
+                {
+                    IsDepthEnabled = false,
+                    DepthWriteMask = D3D11.DepthWriteMask.All,
+                    DepthComparison = D3D11.Comparison.Less,
+                    IsStencilEnabled = true,
+                    StencilReadMask = 0xFF,
+                    StencilWriteMask = 0xFF,
+                    FrontFace = new D3D11.DepthStencilOperationDescription()
+                    {
+                        FailOperation = D3D11.StencilOperation.Keep,
+                        DepthFailOperation = D3D11.StencilOperation.Increment,
+                        PassOperation = D3D11.StencilOperation.Keep,
+                        Comparison = D3D11.Comparison.Always
+                    },
+                    BackFace = new D3D11.DepthStencilOperationDescription()
+                    {
+                        FailOperation = D3D11.StencilOperation.Keep,
+                        DepthFailOperation = D3D11.StencilOperation.Decrement,
+                        PassOperation = D3D11.StencilOperation.Keep,
+                        Comparison = D3D11.Comparison.Always
+                    }
+                };
+
+                DepthDisabledStencilState = new D3D11.DepthStencilState(Device, depthDisabledStencilStateDesc);
+
                 return true; // All operations successful
             }
             catch
@@ -248,6 +278,8 @@ namespace SharpDXPractice.Graphics
             // Set to windowed mode before releasing swap chain
             SwapChain?.SetFullscreenState(false, null);
 
+            DepthDisabledStencilState?.Dispose();
+            DepthDisabledStencilState = null;
             RasterizerState?.Dispose();
             RasterizerState = null;
             DepthStencilView?.Dispose();
@@ -289,6 +321,16 @@ namespace SharpDXPractice.Graphics
                 SwapChain.Present(1, PresentFlags.None); // Lock to screen's refresh rate
             else
                 SwapChain.Present(0, PresentFlags.None); // Present as fast as possible
-        } 
+        }
+        
+        public void TurnZBufferOn()
+        {
+            DeviceContext.OutputMerger.SetDepthStencilState(DepthStencilState, 1);
+        }
+
+        public void TurnZBufferOff()
+        {
+            DeviceContext.OutputMerger.SetDepthStencilState(DepthDisabledStencilState, 1);
+        }
     }
 }

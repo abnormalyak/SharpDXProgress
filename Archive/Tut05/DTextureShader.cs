@@ -59,8 +59,8 @@ namespace SharpDXPractice.Archive.Tut05
             try
             {
                 // Form full paths
-                vsFileName = DSystemConfiguration.ShaderFilePath + vsFileName;
-                psFileName = DSystemConfiguration.ShaderFilePath + psFileName;
+                vsFileName = @"C:\Users\Wing\Documents\Practice\SharpDXPractice\Archive\Tut05\" + vsFileName;
+                psFileName = @"C:\Users\Wing\Documents\Practice\SharpDXPractice\Archive\Tut05\" + psFileName;
 
                 // Compile the vertex shader code
                 ShaderBytecode vertexShaderByteCode = ShaderBytecode.CompileFromFile(
