@@ -34,6 +34,7 @@ namespace SharpDXPractice.Graphics
         [StructLayout(LayoutKind.Sequential)]
         internal struct DLightBuffer
         {
+            public Vector4 ambientColor;
             public Vector4 diffuseColor;
             public Vector3 lightDirection;
             public float padding; // Extra padding makes struct multiple of 16
@@ -53,7 +54,7 @@ namespace SharpDXPractice.Graphics
 
         public bool Initialize(Device device, IntPtr windowHandle)
         {
-            return InitializeShader(device, windowHandle, "Tut06LightVS.hlsl", "Tut06LightPS.hlsl");
+            return InitializeShader(device, windowHandle, "Tut06LightVS.hlsl", "Tut09LightPS.hlsl");
         }
 
         /// <summary>
@@ -196,9 +197,10 @@ namespace SharpDXPractice.Graphics
             Matrix worldMatrix, Matrix viewMatrix, Matrix projectionMatrix,
             ShaderResourceView texture,
             Vector3 lightDirection,
-            Vector4 diffuseColor)
+            Vector4 diffuseColor,
+            Vector4 ambientColor)
         {
-            if (!SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texture, lightDirection, diffuseColor))
+            if (!SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texture, lightDirection, diffuseColor, ambientColor))
                 return false;
 
             RenderShader(deviceContext, indexCount);
@@ -233,7 +235,10 @@ namespace SharpDXPractice.Graphics
         private bool SetShaderParameters(
             DeviceContext deviceContext,
             Matrix worldMatrix, Matrix viewMatrix, Matrix projectionMatrix,
-            ShaderResourceView texture, Vector3 lightDirection, Vector4 diffuseColor)
+            ShaderResourceView texture, 
+            Vector3 lightDirection, 
+            Vector4 diffuseColor, 
+            Vector4 ambientColor)
         {
             try
             {
@@ -279,6 +284,7 @@ namespace SharpDXPractice.Graphics
                 // Copy lighting variables into constant buffer
                 DLightBuffer lightBuffer = new DLightBuffer()
                 {
+                    ambientColor = ambientColor,
                     diffuseColor = diffuseColor,
                     lightDirection = lightDirection,
                     padding = 0

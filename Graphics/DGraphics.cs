@@ -59,8 +59,9 @@ namespace SharpDXPractice.Graphics
 
                 Light = new DLight();
 
+                Light.SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
                 Light.SetDiffuseColor(0.95f, 0.6f, 0, 1);
-                Light.SetDirection(0, 0, 1);
+                Light.SetDirection(1, 0, 0);
 
                 return true;
             } 
@@ -118,7 +119,11 @@ namespace SharpDXPractice.Graphics
             Model.Render(D3D.DeviceContext);
 
             // Render the model using the colour shader
-            if (!LightShader.Render(D3D.DeviceContext, Model.IndexCount, worldMatrix, viewMatrix, projectionMatrix, Model.Texture.TextureResource, Light.direction, Light.diffuseColor))
+            if (!LightShader.Render(D3D.DeviceContext, 
+                Model.IndexCount, 
+                worldMatrix, viewMatrix, projectionMatrix, 
+                Model.Texture.TextureResource, 
+                Light.direction, Light.diffuseColor, Light.ambientColor))
             {
                 MessageBox.Show("Texture shader failed");
                 return false;
@@ -132,7 +137,7 @@ namespace SharpDXPractice.Graphics
 
         public static void Rotate()
         {
-            rotation += (float)Math.PI * 0.01f;
+            rotation += (float)Math.PI * 0.005f;
 
             if (rotation > 360)
                 rotation -= 360;

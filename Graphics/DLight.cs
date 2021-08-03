@@ -9,10 +9,16 @@ namespace SharpDXPractice.Graphics
 {
     public class DLight
     {
+        public Vector4 ambientColor { get; private set; }
         public Vector4 diffuseColor { get; private set; }
         public Vector3 direction { get; private set; }
 
         public DLight() { }
+
+        public void SetAmbientColor(float red, float green, float blue, float alpha)
+        {
+            ambientColor = new Vector4(red, green, blue, alpha);
+        }
 
         public void SetDiffuseColor(float red, float green, float blue, float alpha)
         {
