@@ -29,6 +29,11 @@ namespace SharpDXPractice.Graphics
         #endregion Properties
         public DCamera() { }
 
+        public Vector3 GetPosition()
+        {
+            return new Vector3(PosX, PosY, PosZ);
+        }
+
         public void SetPosition(float x, float y, float z)
         {
             PosX = x;

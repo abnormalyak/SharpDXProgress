@@ -35,13 +35,13 @@ namespace SharpDXPractice.Graphics
                 Camera = new DCamera();
 
                 // Set initial position of camera
-                Camera.SetPosition(0, 2, -7);
+                Camera.SetPosition(0, 0, -5);
                 
                 // Create the model object
                 Model = new DModel();
 
                 // Initialize the model
-                if (!Model.Initialize(D3D.Device, "objCube.obj", "sandstone.bmp", true))
+                if (!Model.Initialize(D3D.Device, "convertedobjCube.obj", "sandstone.bmp"))
                 {
                     MessageBox.Show("Could not initialize model object.");
                     return false;
@@ -62,6 +62,8 @@ namespace SharpDXPractice.Graphics
                 Light.SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
                 Light.SetDiffuseColor(0.95f, 0.6f, 0, 1);
                 Light.SetDirection(1, 0, 0);
+                Light.specularPower = 32;
+                Light.SetSpecularColor(1, 1, 1, 1);
 
                 return true;
             } 
@@ -119,11 +121,13 @@ namespace SharpDXPractice.Graphics
             Model.Render(D3D.DeviceContext);
 
             // Render the model using the colour shader
-            if (!LightShader.Render(D3D.DeviceContext, 
-                Model.IndexCount, 
-                worldMatrix, viewMatrix, projectionMatrix, 
-                Model.Texture.TextureResource, 
-                Light.direction, Light.diffuseColor, Light.ambientColor))
+            if (!LightShader.Render(D3D.DeviceContext,
+                Model.IndexCount,
+                worldMatrix, viewMatrix, projectionMatrix,
+                Model.Texture.TextureResource,
+                Light.direction, Light.diffuseColor, Light.ambientColor,
+                Light.specularPower, Light.specularColor,
+                Camera.GetPosition()))
             {
                 MessageBox.Show("Texture shader failed");
                 return false;
@@ -137,7 +141,7 @@ namespace SharpDXPractice.Graphics
 
         public static void Rotate()
         {
-            rotation += (float)Math.PI * 0.005f;
+            rotation += (float)Math.PI * 0.001f;
 
             if (rotation > 360)
                 rotation -= 360;

@@ -88,9 +88,11 @@
     <Content Include="Archive\Tut04\Tut04VertexShader.hlsl" />
     <Content Include="Archive\Tut04\Tut04PixelShader.hlsl" />
     <Content Include="Models\cube.txt" />
-    <Content Include="Shaders\Tut09LightPS.hlsl" />
+    <Content Include="Shaders\Tut10LightVS.hlsl" />
+    <Content Include="Archive\Tut09\Tut09LightPS.hlsl" />
     <Content Include="Archive\Tut06\Tut06LightPS.hlsl" />
-    <Content Include="Shaders\Tut06LightVS.hlsl" />
+    <Content Include="Archive\Tut06\Tut06LightVS.hlsl" />
+    <Content Include="Shaders\Tut10LightPS.hlsl" />
     <Content Include="Textures\sandstone.bmp">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

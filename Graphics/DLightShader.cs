@@ -37,7 +37,15 @@ namespace SharpDXPractice.Graphics
             public Vector4 ambientColor;
             public Vector4 diffuseColor;
             public Vector3 lightDirection;
-            public float padding; // Extra padding makes struct multiple of 16
+            public float specularPower;
+            public Vector4 specularColor;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        internal struct DCameraBuffer
+        {
+            public Vector3 cameraPosition;
+            public float padding;
         }
         #endregion
 
@@ -47,6 +55,7 @@ namespace SharpDXPractice.Graphics
         public InputLayout InputLayout { get; set; }
         public SharpDX.Direct3D11.Buffer ConstantMatrixBuffer { get; set; }
         public SharpDX.Direct3D11.Buffer ConstantLightBuffer { get; set; }
+        public SharpDX.Direct3D11.Buffer ConstantCameraBuffer { get; set; }
         public SamplerState SamplerState { get; set; }
         #endregion
 
@@ -54,7 +63,7 @@ namespace SharpDXPractice.Graphics
 
         public bool Initialize(Device device, IntPtr windowHandle)
         {
-            return InitializeShader(device, windowHandle, "Tut06LightVS.hlsl", "Tut09LightPS.hlsl");
+            return InitializeShader(device, windowHandle, "Tut10LightVS.hlsl", "Tut10LightPS.hlsl");
         }
 
         /// <summary>
@@ -164,6 +173,7 @@ namespace SharpDXPractice.Graphics
 
                 SamplerState = new SamplerState(device, samplerDesc);
 
+                // Create light buffer
                 BufferDescription lightBufferDesc = new BufferDescription()
                 {
                     Usage = ResourceUsage.Dynamic,
@@ -176,6 +186,18 @@ namespace SharpDXPractice.Graphics
 
                 // Create the constant buffer pointer to allow access to the vertex shader constant buffer
                 ConstantLightBuffer = new SharpDX.Direct3D11.Buffer(device, lightBufferDesc);
+
+                var cameraBufferDesc = new BufferDescription()
+                {
+                    Usage = ResourceUsage.Dynamic,
+                    SizeInBytes = Utilities.SizeOf<DCameraBuffer>(),
+                    BindFlags = BindFlags.ConstantBuffer,
+                    CpuAccessFlags = CpuAccessFlags.Write,
+                    OptionFlags = ResourceOptionFlags.None,
+                    StructureByteStride = 0
+                };
+
+                ConstantCameraBuffer = new SharpDX.Direct3D11.Buffer(device, cameraBufferDesc);
 
                 return true;
             }
@@ -198,9 +220,15 @@ namespace SharpDXPractice.Graphics
             ShaderResourceView texture,
             Vector3 lightDirection,
             Vector4 diffuseColor,
-            Vector4 ambientColor)
+            Vector4 ambientColor,
+            float specularPower, Vector4 specularColor,
+            Vector3 cameraPosition)
         {
-            if (!SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texture, lightDirection, diffuseColor, ambientColor))
+            if (!SetShaderParameters(deviceContext, 
+                worldMatrix, viewMatrix, projectionMatrix, 
+                texture, 
+                lightDirection, diffuseColor, ambientColor, specularPower, specularColor,
+                cameraPosition))
                 return false;
 
             RenderShader(deviceContext, indexCount);
@@ -238,7 +266,9 @@ namespace SharpDXPractice.Graphics
             ShaderResourceView texture, 
             Vector3 lightDirection, 
             Vector4 diffuseColor, 
-            Vector4 ambientColor)
+            Vector4 ambientColor, 
+            float specularPower, Vector4 specularColor, 
+            Vector3 cameraPosition)
         {
             try
             {
@@ -287,7 +317,8 @@ namespace SharpDXPractice.Graphics
                     ambientColor = ambientColor,
                     diffuseColor = diffuseColor,
                     lightDirection = lightDirection,
-                    padding = 0
+                    specularPower = specularPower,
+                    specularColor = specularColor
                 };
                 mappedResource.Write(lightBuffer);
 
@@ -297,6 +328,26 @@ namespace SharpDXPractice.Graphics
                 bufferSlotNumber = 0;
 
                 deviceContext.PixelShader.SetConstantBuffer(bufferSlotNumber, ConstantLightBuffer);
+
+                // Lock camera constant buffer so it can be written to
+                deviceContext.MapSubresource(ConstantCameraBuffer,
+                    MapMode.WriteDiscard,
+                    MapFlags.None,
+                    out mappedResource);
+
+                // Copy camera variables into constant buffer
+                DCameraBuffer cameraBuffer = new DCameraBuffer()
+                {
+                    cameraPosition = cameraPosition,
+                    padding = 0.0f
+                };
+                mappedResource.Write(cameraBuffer);
+
+                deviceContext.UnmapSubresource(ConstantCameraBuffer, 0);
+
+                bufferSlotNumber = 1;
+
+                deviceContext.VertexShader.SetConstantBuffer(bufferSlotNumber, ConstantCameraBuffer);
 
                 return true;
             }
