@@ -88,9 +88,6 @@ namespace SharpDXPractice.Graphics
                     1
                 };
 
-                for (var i = 0; i < IndexCount; i++)
-                    indices[i] = i;
-
                 var vertexBuffer = new BufferDescription()
                 {
                     Usage = ResourceUsage.Dynamic,
