@@ -56,13 +56,13 @@ namespace SharpDXPractice.Graphics
             if (!InitializeSentence(out sentences[0], 16, device))
                 return false;
 
-            if (!UpdateSentence(sentences[0], "Hello", 100, 100, 1, 1, 1, deviceContext))
+            if (!UpdateSentence(ref sentences[0], "Hello", 100, 100, 1, 1, 1, deviceContext))
                 return false;
 
             if (!InitializeSentence(out sentences[1], 16, device))
                 return false;
 
-            if (!UpdateSentence(sentences[1], "Goodbye", 100, 200, 1, 0, 1, deviceContext))
+            if (!UpdateSentence(ref sentences[1], "Goodbye", 100, 200, 1, 0, 0, deviceContext))
                 return false;
 
             return true;
@@ -94,14 +94,12 @@ namespace SharpDXPractice.Graphics
 
         private bool InitializeSentence(out SentenceType sentence, int maxLength, Device device)
         {
-            sentence = new SentenceType()
-            {
-                VertexBuffer = null,
-                IndexBuffer = null,
-                maxLength = maxLength,
-                vertexCount = 6 * maxLength,
-                indexCount = 6 * maxLength
-            };
+            sentence = new SentenceType();
+            sentence.VertexBuffer = null;
+            sentence.IndexBuffer = null;
+            sentence.maxLength = maxLength;
+            sentence.vertexCount = 6 * maxLength; 
+            sentence.indexCount = 6 * maxLength;
 
             var vertices = new DFont.DVertex[sentence.vertexCount];
             var indices = new int[sentence.indexCount];
@@ -128,7 +126,7 @@ namespace SharpDXPractice.Graphics
             return true;
         }
 
-        private bool UpdateSentence(SentenceType sentence, string message, int posX, int posY, float red, float green, float blue, DeviceContext deviceContext)
+        private bool UpdateSentence(ref SentenceType sentence, string message, int posX, int posY, float red, float green, float blue, DeviceContext deviceContext)
         {
             // Set the color and size of the sentence
             sentence.red = red;
@@ -155,7 +153,7 @@ namespace SharpDXPractice.Graphics
 
             // Lock vertex buffer so it can be written to
             deviceContext.MapSubresource(sentence.VertexBuffer, MapMode.WriteDiscard, MapFlags.None, out mappedResource);
-            mappedResource.WriteRange(vertices.ToArray());
+            mappedResource.WriteRange<DFont.DVertex>(vertices.ToArray());
 
             deviceContext.UnmapSubresource(sentence.VertexBuffer, 0);
             #endregion

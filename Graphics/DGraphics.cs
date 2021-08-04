@@ -85,6 +85,7 @@ namespace SharpDXPractice.Graphics
                 // END
 
                 // START If using bitmap, uncomment
+                /*
                 TextureShader = new DTextureShader();
 
                 if (!TextureShader.Initialize(D3D.Device, windowHandle))
@@ -97,6 +98,7 @@ namespace SharpDXPractice.Graphics
 
                 if (!Bitmap.Initialize(D3D.Device, config.Width, config.Height, "watercolor.bmp", 256, 256))
                     return false;
+                */
                 // END
                 return true;
             } 

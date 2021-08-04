@@ -150,7 +150,7 @@ namespace SharpDXPractice.Graphics
                 SamplerState = new SamplerState(device, samplerDesc);
 
                 // Set up the pixel color constant buffer description
-                BufferDescription pixelBufferDesc = new BufferDescription()
+                var pixelBufferDesc = new BufferDescription()
                 {
                     Usage = ResourceUsage.Dynamic,
                     SizeInBytes = Utilities.SizeOf<DPixelBuffer>(),
@@ -263,7 +263,7 @@ namespace SharpDXPractice.Graphics
                     out mappedResource);
 
                 // Copy the pixel colour into the pixel constant buffer
-                DPixelBuffer pixelBuffer = new DPixelBuffer()
+                var pixelBuffer = new DPixelBuffer()
                 {
                     pixelColor = pixelColor
                 };
