@@ -25,6 +25,8 @@ namespace SharpDXPractice.Graphics
         public D3D11.DepthStencilState DepthDisabledStencilState { get; set; }
         private D3D11.DepthStencilView DepthStencilView { get; set; }
         private D3D11.RasterizerState RasterizerState { get; set; }
+        private D3D11.BlendState AlphaEnableBlendingState { get; set; }
+        private D3D11.BlendState AlphaDisableBlendingState { get; set; }
         public Matrix ProjectionMatrix { get; set; }
         public Matrix WorldMatrix { get; set; }
         public Matrix OrthoMatrix { get; private set; }
@@ -234,8 +236,10 @@ namespace SharpDXPractice.Graphics
                 // Initialize the world martix to the identity matrix
                 WorldMatrix = Matrix.Identity;
 
+                // Set up orthographic (2D viewing) matrix
                 OrthoMatrix = Matrix.OrthoLH(config.Width, config.Height, DSystemConfiguration.ScreenNear, DSystemConfiguration.ScreenDepth);
 
+                // Set up depth disabled stencil state
                 var depthDisabledStencilStateDesc = new D3D11.DepthStencilStateDescription()
                 {
                     IsDepthEnabled = false,
@@ -260,8 +264,28 @@ namespace SharpDXPractice.Graphics
                     }
                 };
 
+                // Create the depth disabled stencil state
                 DepthDisabledStencilState = new D3D11.DepthStencilState(Device, depthDisabledStencilStateDesc);
 
+                // Create an alpha enabled blend state description
+                D3D11.BlendStateDescription blendStateDescription = new D3D11.BlendStateDescription();
+                blendStateDescription.RenderTarget[0].IsBlendEnabled = true;
+                blendStateDescription.RenderTarget[0].SourceBlend = D3D11.BlendOption.One;
+                blendStateDescription.RenderTarget[0].DestinationBlend = D3D11.BlendOption.InverseSourceAlpha;
+                blendStateDescription.RenderTarget[0].BlendOperation = D3D11.BlendOperation.Add;
+                blendStateDescription.RenderTarget[0].SourceAlphaBlend = D3D11.BlendOption.One;
+                blendStateDescription.RenderTarget[0].DestinationAlphaBlend = D3D11.BlendOption.Zero;
+                blendStateDescription.RenderTarget[0].AlphaBlendOperation = D3D11.BlendOperation.Add;
+                blendStateDescription.RenderTarget[0].RenderTargetWriteMask = D3D11.ColorWriteMaskFlags.All;
+
+                // Create the blend state using the description
+                AlphaEnableBlendingState = new D3D11.BlendState(device, blendStateDescription);
+
+                // Modify description to create a disabled blend state description
+                blendStateDescription.RenderTarget[0].IsBlendEnabled = false;
+
+                // Create the blend state using the description
+                AlphaDisableBlendingState = new D3D11.BlendState(device, blendStateDescription);
                 return true; // All operations successful
             }
             catch
@@ -278,23 +302,35 @@ namespace SharpDXPractice.Graphics
             // Set to windowed mode before releasing swap chain
             SwapChain?.SetFullscreenState(false, null);
 
+            AlphaEnableBlendingState?.Dispose();
+            AlphaEnableBlendingState = null;
+            AlphaDisableBlendingState?.Dispose();
+            AlphaDisableBlendingState = null;
+
             DepthDisabledStencilState?.Dispose();
             DepthDisabledStencilState = null;
+
             RasterizerState?.Dispose();
             RasterizerState = null;
+
             DepthStencilView?.Dispose();
             DepthStencilView = null;
             DepthStencilState?.Dispose();
             DepthStencilState = null;
             DepthStencilBuffer?.Dispose();
             DepthStencilBuffer = null;
+
             RenderTargetView?.Dispose();
             RenderTargetView = null;
+
             SwapChain?.Dispose();
             SwapChain = null;
+
             Device?.Dispose();
             Device = null;
 
+            DeviceContext?.Dispose();
+            DeviceContext = null;
         }
 
         /// <summary>
@@ -331,6 +367,16 @@ namespace SharpDXPractice.Graphics
         public void TurnZBufferOff()
         {
             DeviceContext.OutputMerger.SetDepthStencilState(DepthDisabledStencilState, 1);
+        }
+
+        public void TurnOnAlphaBlending()
+        {
+            DeviceContext.OutputMerger.SetBlendState(AlphaEnableBlendingState, new SharpDX.Mathematics.Interop.RawColor4(0, 0, 0, 0), -1);
+        }
+
+        public void TurnOffAlphaBlending()
+        {
+            DeviceContext.OutputMerger.SetBlendState(AlphaDisableBlendingState, new SharpDX.Mathematics.Interop.RawColor4(0, 0, 0, 0), -1);
         }
     }
 }

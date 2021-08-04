@@ -20,6 +20,7 @@ namespace SharpDXPractice.Graphics
         private DLight Light { get; set; }
         public static float rotation { get; set; }
         public DBitmap Bitmap { get; set; }
+        public DText Text { get; set; }
 
         public DGraphics() { }
 
@@ -39,11 +40,22 @@ namespace SharpDXPractice.Graphics
 
                 // Set initial position of camera
                 Camera.SetPosition(0, 0, -5);
+
+                // START If rendering text, uncomment
+                Camera.SetPosition(0, 0, -1);
+                Camera.Render();
+                var baseViewMatrix = Camera.ViewMatrix;
+
+                Text = new DText();
+
+                if (!Text.Initialize(D3D.Device, D3D.DeviceContext, windowHandle, config.Width, config.Height, baseViewMatrix))
+                    return false;
+                // END
                 
                 // Create the model object
                 Model = new DModel();
 
-                // START Comment out when using bitmap
+                // START If rendering 3D models, uncomment
                 /*
                 // Initialize the model
                 if (!Model.Initialize(D3D.Device, "sphere.txt", "watercolor.bmp"))
@@ -96,6 +108,9 @@ namespace SharpDXPractice.Graphics
         }
         public void ShutDown()
         {
+            Text?.ShutDown();
+            Text = null;
+
             Light = null;
 
             LightShader?.ShutDown();
@@ -140,6 +155,8 @@ namespace SharpDXPractice.Graphics
 
             // START 3D rendering (comment out for 2D)
             /*
+            D3D.TurnOffAlphaBlending();
+            D3D.TurnZBufferOn(); // Begin 3D rendering
             // Rotate the world matrix by the rotation value (makes model spin)
             Matrix.RotationY(rotation, out worldMatrix);
 
@@ -160,7 +177,8 @@ namespace SharpDXPractice.Graphics
             }
             */
 
-            // START 2D rendering (comment out for 3D)
+            // START 2D rendering (comment out for 3D / text)
+            /*
             D3D.TurnZBufferOff();
 
             if (!Bitmap.Render(D3D.DeviceContext, 100, 100))
@@ -169,6 +187,15 @@ namespace SharpDXPractice.Graphics
             }
 
             if (!TextureShader.Render(D3D.DeviceContext, Bitmap.IndexCount, worldMatrix, viewMatrix, orthoMatrix, Bitmap.Texture.TextureResource))
+                return false;
+            */
+            // END
+
+            // START 2D text rendering (comment out 2D / 3D)
+            D3D.TurnZBufferOff(); // Begin 2D rendering
+            D3D.TurnOnAlphaBlending();
+
+            if (!Text.Render(D3D.DeviceContext, worldMatrix, orthoMatrix))
                 return false;
             // END
 

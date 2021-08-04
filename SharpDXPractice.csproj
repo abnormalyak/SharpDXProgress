@@ -42,11 +42,14 @@
     <Compile Include="Graphics\DBitmap.cs" />
     <Compile Include="Graphics\DCamera.cs" />
     <Compile Include="Graphics\DDX11.cs" />
+    <Compile Include="Graphics\DFont.cs" />
+    <Compile Include="Graphics\DFontShader.cs" />
     <Compile Include="Graphics\DGraphics.cs" />
     <Compile Include="Graphics\DLight.cs" />
     <Compile Include="Graphics\DLightShader.cs" />
     <Compile Include="Graphics\DModel.cs" />
     <Compile Include="Archive\Tut04\DTriangleColorShader.cs" />
+    <Compile Include="Graphics\DText.cs" />
     <Compile Include="Graphics\DTexture.cs" />
     <Compile Include="Archive\Tut05\DTextureShader.cs" />
     <Compile Include="ObjLoader\DFace.cs" />
@@ -89,11 +92,15 @@
     <Content Include="Archive\Tut04\Tut04VertexShader.hlsl" />
     <Content Include="Archive\Tut04\Tut04PixelShader.hlsl" />
     <Content Include="Models\cube.txt" />
+    <Content Include="Models\fontdata.txt" />
+    <Content Include="Shaders\Tut12FontPS.hlsl" />
+    <Content Include="Shaders\Tut12FontVS.hlsl" />
     <Content Include="Shaders\Tut10LightVS.hlsl" />
     <Content Include="Archive\Tut09\Tut09LightPS.hlsl" />
     <Content Include="Archive\Tut06\Tut06LightPS.hlsl" />
     <Content Include="Archive\Tut06\Tut06LightVS.hlsl" />
     <Content Include="Shaders\Tut10LightPS.hlsl" />
+    <Content Include="Textures\font.bmp" />
     <Content Include="Textures\sandstone.bmp">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
