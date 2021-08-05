@@ -91,7 +91,7 @@ namespace SharpDXPractice
             Input.GetMouseLocation(out mouseX, out mouseY);
 
             // Do the frame processing for the graphics object
-            if (!Graphics.Frame(mouseX, mouseY, Input.PressedKeys))
+            if (!Graphics.Frame(mouseX, mouseY, Input.PressedKeys, true))
                 return false;
 
             // Render the graphics to the screen

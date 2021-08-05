@@ -16,7 +16,7 @@ namespace SharpDXPractice.Graphics
         #region config
         private int ScreenWidth { get; set; }
         private int ScreenHeight { get; set; }
-        private const int NumTriangles = 1; // Cursor size
+        private const int NumTriangles = 2; // Cursor size
         #endregion
         #region gpu
         private Matrix BaseViewMatrix { get; set; }
