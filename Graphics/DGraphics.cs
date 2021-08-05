@@ -151,7 +151,7 @@ namespace SharpDXPractice.Graphics
 
         public bool Render(float rotation, int mouseX, int mouseY)
         {
-            Matrix viewMatrix, projectionMatrix, worldMatrix, orthoMatrix;
+            Matrix viewMatrix, projectionMatrix, worldMatrix3D, worldMatrix2D, orthoMatrix;
 
             // Clear the buffers to begin the scene
             D3D.BeginScene(0.3f, 0, 0.1f, 1.0f);
@@ -161,7 +161,8 @@ namespace SharpDXPractice.Graphics
 
             // Get the world, view and projection matrices from the camera and D3D objects
             viewMatrix = Camera.ViewMatrix;
-            worldMatrix = D3D.WorldMatrix;
+            worldMatrix3D = D3D.WorldMatrix;
+            worldMatrix2D = D3D.WorldMatrix;
             projectionMatrix = D3D.ProjectionMatrix;
 
             // Get ortho matrix
@@ -172,7 +173,7 @@ namespace SharpDXPractice.Graphics
             D3D.TurnOffAlphaBlending();
             D3D.TurnZBufferOn(); // Begin 3D rendering
             // Rotate the world matrix by the rotation value (makes model spin)
-            Matrix.RotationY(rotation, out worldMatrix);
+            Matrix.RotationY(rotation, out worldMatrix3D);
 
             // Put the model vertex and index buffers on the graphics pipeline to prepare them from drawing
             Model.Render(D3D.DeviceContext);
@@ -180,7 +181,7 @@ namespace SharpDXPractice.Graphics
             // Render the model using the colour shader
             if (!LightShader.Render(D3D.DeviceContext,
                 Model.IndexCount,
-                worldMatrix, viewMatrix, projectionMatrix,
+                worldMatrix3D, viewMatrix, projectionMatrix,
                 Model.Texture.TextureResource,
                 Light.direction, Light.diffuseColor, Light.ambientColor,
                 Light.specularPower, Light.specularColor,
@@ -209,7 +210,7 @@ namespace SharpDXPractice.Graphics
             D3D.TurnZBufferOff(); // Begin 2D rendering
             D3D.TurnOnAlphaBlending();
 
-            if (!Text.Render(D3D.DeviceContext, worldMatrix, orthoMatrix))
+            if (!Text.Render(D3D.DeviceContext, worldMatrix2D, orthoMatrix))
                 return false;
             // END
 
