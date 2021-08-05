@@ -28,7 +28,7 @@ namespace SharpDXPractice.Graphics
         private int ScreenHeight { get; set; }
         private Matrix BaseViewMatrix { get; set; }
 
-        private SentenceType[] sentences = new SentenceType[2];
+        private SentenceType[] sentences = new SentenceType[3];
 
 
         public DText() { }
@@ -63,6 +63,9 @@ namespace SharpDXPractice.Graphics
                 return false;
 
             if (!UpdateSentence(ref sentences[1], "Goodbye", 100, 200, 1, 0, 0, deviceContext))
+                return false;
+
+            if (!InitializeSentence(out sentences[2], 16, device))
                 return false;
 
             return true;
@@ -189,6 +192,26 @@ namespace SharpDXPractice.Graphics
             return FontShader.Render(deviceContext, sentence.indexCount, 
                 worldMatrix, BaseViewMatrix, orthoMatrix, 
                 Font.Texture.TextureResource, pixelColor);
+        }
+
+        public bool SetMousePosition(int mouseX, int mouseY, DeviceContext deviceContext)
+        {
+            string mouseString = "Mouse X: " + mouseX.ToString();
+            if (!UpdateSentence(ref sentences[0], mouseString, 20, 10, 1, 0, 1, deviceContext))
+                return false;
+
+            mouseString = "Mouse Y: " + mouseY.ToString();
+            if (!UpdateSentence(ref sentences[1], mouseString, 20, 40, 1, 1, 0, deviceContext))
+                return false;
+
+            return true;
+        }
+
+        public bool SetPressedKeys(string pressedKeys, DeviceContext deviceContext)
+        {
+            if (pressedKeys != null)
+                return UpdateSentence(ref sentences[2], pressedKeys, 20, 70, 1, 0, 1, deviceContext);
+            return false;
         }
     }
 }

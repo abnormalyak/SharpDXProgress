@@ -130,14 +130,26 @@ namespace SharpDXPractice.Graphics
             D3D = null;
         }
 
-        public bool Frame()
+        public bool Frame(int mouseX, int mouseY, string pressedKeys)
         {
-            Rotate();
+            bool resultMouse = true, resultKeyboard = true;
+            //Rotate();
 
-            return Render(rotation);
+            // Set the location of the mouse
+            if (!Text.SetMousePosition(mouseX, mouseY, D3D.DeviceContext))
+                resultMouse = false;
+
+            if (!Text.SetPressedKeys(pressedKeys, D3D.DeviceContext))
+                resultKeyboard = false;
+
+            // Set the position of the camera
+            Camera.SetPosition(0, 0, -5);
+
+            //return Render(rotation);
+            return (resultMouse | resultKeyboard);
         }
 
-        public bool Render(float rotation)
+        public bool Render(/*float rotation*/ int mouseX, int mouseY)
         {
             Matrix viewMatrix, projectionMatrix, worldMatrix, orthoMatrix;
 

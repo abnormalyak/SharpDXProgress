@@ -45,7 +45,8 @@ namespace SharpDXPractice
             if (Input == null)
             {
                 Input = new DInput();
-                Input.Initialize();
+                if (!Input.Initialize(Configuration, RenderForm.Handle))
+                    return false;
             }
             if (Graphics == null)
             {
@@ -73,9 +74,6 @@ namespace SharpDXPractice
         }
         private void RunRenderForm()
         {
-            RenderForm.KeyDown += (s, e) => Input.KeyDown(e.KeyCode);
-            RenderForm.KeyUp += (s, e) => Input.KeyUp(e.KeyCode);
-
             RenderLoop.Run(RenderForm, () =>
             {
                 if (!Frame())
@@ -85,11 +83,22 @@ namespace SharpDXPractice
         public bool Frame()
         {
             // Check if the user pressed escape and wants to exit the application.
-            if (Input.IsKeyDown(Keys.Escape))
+            if (!Input.Frame() || Input.IsEscapePressed())
                 return false;
 
-            // Do the frame processing for the graphics object.
-            return Graphics.Frame();
+            // Update the Graphics class with the location of the mouse
+            int mouseX, mouseY;
+            Input.GetMouseLocation(out mouseX, out mouseY);
+
+            // Do the frame processing for the graphics object
+            if (!Graphics.Frame(mouseX, mouseY, Input.PressedKeys))
+                return false;
+
+            // Render the graphics to the screen
+            if (!Graphics.Render(mouseX, mouseY))
+                return false;
+
+            return true;
         }
         public void ShutDown()
         {
@@ -97,7 +106,10 @@ namespace SharpDXPractice
 
             Graphics?.ShutDown();
             Graphics = null;
+
+            Input?.Shutdown();
             Input = null;
+
             Configuration = null;
         }
         private void ShutdownWindows()
