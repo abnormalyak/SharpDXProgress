@@ -56,7 +56,7 @@ namespace SharpDXPractice.Graphics
                 Model = new DModel();
 
                 // START If rendering 3D models, uncomment
-                /*
+                
                 // Initialize the model
                 if (!Model.Initialize(D3D.Device, "sphere.txt", "watercolor.bmp"))
                 {
@@ -81,7 +81,7 @@ namespace SharpDXPractice.Graphics
                 Light.SetDirection(1, 0, 0);
                 Light.specularPower = 32;
                 Light.SetSpecularColor(1, 1, 1, 1);
-                */
+                
                 // END
 
                 // START If using bitmap, uncomment
@@ -133,7 +133,7 @@ namespace SharpDXPractice.Graphics
         public bool Frame(int mouseX, int mouseY, string pressedKeys)
         {
             bool resultMouse = true, resultKeyboard = true;
-            //Rotate();
+            Rotate();
 
             // Set the location of the mouse
             if (!Text.SetMousePosition(mouseX, mouseY, D3D.DeviceContext))
@@ -149,7 +149,7 @@ namespace SharpDXPractice.Graphics
             return (resultMouse | resultKeyboard);
         }
 
-        public bool Render(/*float rotation*/ int mouseX, int mouseY)
+        public bool Render(float rotation, int mouseX, int mouseY)
         {
             Matrix viewMatrix, projectionMatrix, worldMatrix, orthoMatrix;
 
@@ -168,7 +168,7 @@ namespace SharpDXPractice.Graphics
             orthoMatrix = D3D.OrthoMatrix;
 
             // START 3D rendering (comment out for 2D)
-            /*
+            
             D3D.TurnOffAlphaBlending();
             D3D.TurnZBufferOn(); // Begin 3D rendering
             // Rotate the world matrix by the rotation value (makes model spin)
@@ -189,7 +189,7 @@ namespace SharpDXPractice.Graphics
                 MessageBox.Show("Texture shader failed");
                 return false;
             }
-            */
+            
 
             // START 2D rendering (comment out for 3D / text)
             /*

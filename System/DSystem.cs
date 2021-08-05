@@ -95,7 +95,7 @@ namespace SharpDXPractice
                 return false;
 
             // Render the graphics to the screen
-            if (!Graphics.Render(mouseX, mouseY))
+            if (!Graphics.Render(DGraphics.rotation, mouseX, mouseY))
                 return false;
 
             return true;
