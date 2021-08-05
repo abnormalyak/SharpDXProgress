@@ -209,9 +209,7 @@ namespace SharpDXPractice.Graphics
 
         public bool SetPressedKeys(string pressedKeys, DeviceContext deviceContext)
         {
-            if (pressedKeys != null)
-                return UpdateSentence(ref sentences[2], pressedKeys, 20, 70, 1, 0, 1, deviceContext);
-            return false;
+            return UpdateSentence(ref sentences[2], "Pressed keys: " + pressedKeys, 20, 70, 1, 0, 1, deviceContext);
         }
     }
 }

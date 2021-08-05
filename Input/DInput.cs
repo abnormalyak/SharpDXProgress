@@ -142,13 +142,31 @@ namespace SharpDXPractice.Input
             try
             {
                 Keyboard.GetCurrentState(ref KeyboardState);
-                if (PressedKeys.Length < 16)
-                    PressedKeys += KeyboardState.PressedKeys.ToString();
-                else
+
+                // Create a list of pressed keys
+                List<string> pressedKeyList = new List<string>();
+
+                foreach (Key k in KeyboardState.PressedKeys)
                 {
-                    PressedKeys = "";
-                    PressedKeys += KeyboardState.PressedKeys.ToString();
+                    // Convert the Key enum to the name of the key
+                    var enumDisplayStatus = (Key)k;
+                    // Add the name as a string to the list
+                    pressedKeyList.Add(enumDisplayStatus.ToString());
                 }
+
+                // Adds each string from the list to the PressedKeys string,
+                // resetting the string if it gets too long.
+                foreach (string s in pressedKeyList)
+                {
+                    if (PressedKeys.Length < 16)
+                        PressedKeys += s;
+                    else
+                    {
+                        PressedKeys = "";
+                        PressedKeys += s;
+                    }
+                }
+                    
             }
             catch (SharpDXException ex)
             {
