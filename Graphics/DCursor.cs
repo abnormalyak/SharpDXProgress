@@ -16,7 +16,7 @@ namespace SharpDXPractice.Graphics
         #region config
         private int ScreenWidth { get; set; }
         private int ScreenHeight { get; set; }
-        private const int NumTriangles = 2; // Cursor size
+        private const int NumTriangles = 1; // Cursor size
         #endregion
         #region gpu
         private Matrix BaseViewMatrix { get; set; }
@@ -68,7 +68,7 @@ namespace SharpDXPractice.Graphics
             var vertexBufferDesc = new BufferDescription()
             {
                 Usage = ResourceUsage.Dynamic,
-                SizeInBytes = Utilities.SizeOf<DFont.DVertex>() * vertexCount,
+                SizeInBytes = Utilities.SizeOf<DTriangleColorShader.DVertex>() * vertexCount,
                 BindFlags = BindFlags.VertexBuffer,
                 CpuAccessFlags = CpuAccessFlags.Write,
                 OptionFlags = ResourceOptionFlags.None,
