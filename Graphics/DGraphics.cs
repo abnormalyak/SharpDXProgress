@@ -18,9 +18,11 @@ namespace SharpDXPractice.Graphics
         private DLightShader LightShader { get; set; }
         private DTextureShader TextureShader { get; set; }
         private DLight Light { get; set; }
+        private float red, green, blue; // Used by cursor
         public static float rotation { get; set; }
         public DBitmap Bitmap { get; set; }
         public DText Text { get; set; }
+        public DCursor Cursor { get; set; }
 
         public DGraphics() { }
 
@@ -34,7 +36,7 @@ namespace SharpDXPractice.Graphics
                 // Initialize the Direct3D object
                 if (!D3D.Initialize(config, windowHandle))
                     return false;
-                
+
                 // Create the camera object
                 Camera = new DCamera();
 
@@ -51,19 +53,19 @@ namespace SharpDXPractice.Graphics
                 if (!Text.Initialize(D3D.Device, D3D.DeviceContext, windowHandle, config.Width, config.Height, baseViewMatrix))
                     return false;
                 // END
-                
+
                 // Create the model object
                 Model = new DModel();
 
                 // START If rendering 3D models, uncomment
-                
+
                 // Initialize the model
                 if (!Model.Initialize(D3D.Device, "sphere.txt", "watercolor.bmp"))
                 {
                     MessageBox.Show("Could not initialize model object.");
                     return false;
                 }
-                
+
                 // Create the color shader object
                 LightShader = new DLightShader();
 
@@ -81,7 +83,18 @@ namespace SharpDXPractice.Graphics
                 Light.SetDirection(1, 0, 0);
                 Light.specularPower = 32;
                 Light.SetSpecularColor(1, 1, 1, 1);
-                
+
+                // END
+
+                // START For rendering cursor, uncomment
+                Cursor = new DCursor();
+
+                if (!Cursor.Initialize(D3D.Device, D3D.DeviceContext, windowHandle, config.Width, config.Height, baseViewMatrix))
+                {
+                    red = green = blue = 1;
+                    MessageBox.Show("Could not initialize cursor object.");
+                    return false;
+                }
                 // END
 
                 // START If using bitmap, uncomment
@@ -130,7 +143,7 @@ namespace SharpDXPractice.Graphics
             D3D = null;
         }
 
-        public bool Frame(int mouseX, int mouseY, string pressedKeys)
+        public bool Frame(int mouseX, int mouseY, string pressedKeys, bool pulseCursorColor = false)
         {
             bool resultMouse = true, resultKeyboard = true;
             Rotate();
@@ -139,14 +152,30 @@ namespace SharpDXPractice.Graphics
             if (!Text.SetMousePosition(mouseX, mouseY, D3D.DeviceContext))
                 resultMouse = false;
 
+            // Set the keys currently being pressed
             if (!Text.SetPressedKeys(pressedKeys, D3D.DeviceContext))
                 resultKeyboard = false;
+
+            // Set the location of the mouse for the cursor object
+            if (!Cursor.SetMousePositionAndColor(mouseX, mouseY, red, green, blue, D3D.DeviceContext))
+                return false;
+
+            if (pulseCursorColor)
+                PulseCursorColor();
 
             // Set the position of the camera
             Camera.SetPosition(0, 0, -5);
 
             //return Render(rotation);
             return (resultMouse | resultKeyboard);
+        }
+
+        private void PulseCursorColor()
+        {
+            Random rand = new Random();
+            red = rand.NextFloat(0, 1);
+            green = rand.NextFloat(0, 1);
+            blue = rand.NextFloat(0, 1);
         }
 
         public bool Render(float rotation, int mouseX, int mouseY)
@@ -211,6 +240,11 @@ namespace SharpDXPractice.Graphics
             D3D.TurnOnAlphaBlending();
 
             if (!Text.Render(D3D.DeviceContext, worldMatrix2D, orthoMatrix))
+                return false;
+            // END
+
+            // START 2D cursor rendering
+            if (!Cursor.Render(D3D.DeviceContext, worldMatrix2D, orthoMatrix))
                 return false;
             // END
 

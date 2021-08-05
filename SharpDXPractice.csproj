@@ -41,6 +41,7 @@
   <ItemGroup>
     <Compile Include="Graphics\DBitmap.cs" />
     <Compile Include="Graphics\DCamera.cs" />
+    <Compile Include="Graphics\DCursor.cs" />
     <Compile Include="Graphics\DDX11.cs" />
     <Compile Include="Graphics\DFont.cs" />
     <Compile Include="Graphics\DFontShader.cs" />
