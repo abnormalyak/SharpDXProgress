@@ -19,6 +19,7 @@ namespace SharpDXPractice.Graphics
         private DTextureShader TextureShader { get; set; }
         private DLight Light { get; set; }
         private float red, green, blue; // Used by cursor
+        private float pulseStage = 0;
         public static float rotation { get; set; }
         public DBitmap Bitmap { get; set; }
         public DText Text { get; set; }
@@ -172,10 +173,65 @@ namespace SharpDXPractice.Graphics
 
         private void PulseCursorColor()
         {
-            Random rand = new Random();
-            red = rand.NextFloat(0, 1);
-            green = rand.NextFloat(0, 1);
-            blue = rand.NextFloat(0, 1);
+            if (0 <= pulseStage && pulseStage < 60)
+                Fade(1, 0, 0);
+            if (60 <= pulseStage && pulseStage < 120)
+                Fade(0, 1, 0);
+            if (120 <= pulseStage && pulseStage < 180)
+                Fade(0, 0, 1);
+            pulseStage = (pulseStage + 1) % 180;
+        }
+
+        private void Fade(float r, float g, float b)
+        {
+            // Float (0 - 1) values converted to 0-255
+            int goalBigR = (int)(r * 255);
+            int goalBigG = (int)(g * 255);
+            int goalBigB = (int)(b * 255);
+            int currentBigR = (int)(red * 255);
+            int currentBigG = (int)(green * 255);
+            int currentBigB = (int)(blue * 255);
+
+            int gapR = CalculateGap(currentBigR, goalBigR);
+            int gapG = CalculateGap(currentBigG, goalBigG);
+            int gapB = CalculateGap(currentBigB, goalBigB);
+
+            float newR = (currentBigR - gapR) / 255;
+            float newG = (currentBigG - gapG) / 255;
+            float newB = (currentBigB - gapB) / 255;
+
+            CapValue(ref newR);
+            CapValue(ref newG);
+            CapValue(ref newB);
+
+            red = newR;
+            green = newG;
+            blue = newB;
+        }
+
+        /// <summary>
+        /// Caps between 0 and 1
+        /// </summary>
+        /// <param name="value"></param>
+        private void CapValue(ref float value)
+        {
+            if (value > 1)
+                value = 1;
+            else if (value < 0)
+                value = 0;
+        }
+
+        private int CalculateGap(int currentValue, int goalValue)
+        {
+            int result = goalValue - currentValue;
+            
+            // May not be correct math, but my guess...
+            // 60 frames = 1 sec
+            // 300 frames = 5 sec, i.e. the time to fade to new colour
+            if (result > 0)
+                result = 300 / result;
+
+            return result;
         }
 
         public bool Render(float rotation, int mouseX, int mouseY)
