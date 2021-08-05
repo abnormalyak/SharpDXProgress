@@ -18,12 +18,15 @@ namespace SharpDXPractice.Graphics
         private DLightShader LightShader { get; set; }
         private DTextureShader TextureShader { get; set; }
         private DLight Light { get; set; }
-        private float red, green, blue; // Used by cursor
-        private float pulseStage = 0;
         public static float rotation { get; set; }
         public DBitmap Bitmap { get; set; }
         public DText Text { get; set; }
         public DCursor Cursor { get; set; }
+        #region Cursor properties
+        private float red, green, blue; // Used by cursor
+        private float pulseStage = 0;
+        private int fadeTime = 5; // The time (in seconds) to fade between colours
+        #endregion
 
         public DGraphics() { }
 
@@ -89,10 +92,10 @@ namespace SharpDXPractice.Graphics
 
                 // START For rendering cursor, uncomment
                 Cursor = new DCursor();
+                red = green = blue = 1;
 
                 if (!Cursor.Initialize(D3D.Device, D3D.DeviceContext, windowHandle, config.Width, config.Height, baseViewMatrix))
                 {
-                    red = green = blue = 1;
                     MessageBox.Show("Could not initialize cursor object.");
                     return false;
                 }
@@ -173,13 +176,31 @@ namespace SharpDXPractice.Graphics
 
         private void PulseCursorColor()
         {
-            if (0 <= pulseStage && pulseStage < 60)
-                Fade(1, 0, 0);
-            if (60 <= pulseStage && pulseStage < 120)
-                Fade(0, 1, 0);
-            if (120 <= pulseStage && pulseStage < 180)
-                Fade(0, 0, 1);
-            pulseStage = (pulseStage + 1) % 180;
+            if (pulseStage == 0)
+            {
+                Random rand = new Random();
+                if (red > 0.5f)
+                    red -= rand.NextFloat(0, 0.4f) * red;
+                else
+                    red += rand.NextFloat(0, 0.4f) * red;
+                if (green > 0.5f)
+                    green -= rand.NextFloat(0, 0.4f) * green;
+                else
+                    green += rand.NextFloat(0, 0.4f) * green;
+                if (blue > 0.5f)
+                    blue-= rand.NextFloat(0, 0.4f) * blue;
+                else
+                    blue += rand.NextFloat(0, 0.4f) * blue;
+                CapRGBValues();
+            }
+            pulseStage = (pulseStage + 1) % 10;
+        }
+
+        private void CapRGBValues()
+        {
+            CapValue(ref red);
+            CapValue(ref green);
+            CapValue(ref blue);
         }
 
         private void Fade(float r, float g, float b)
