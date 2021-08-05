@@ -9,7 +9,7 @@ using SharpDX.Windows;
 using SharpDXPractice.Input;
 using SharpDXPractice.Graphics;
 using SharpDXPractice.System;
-
+using SharpDXPractice.Sound;
 
 namespace SharpDXPractice
 {
@@ -20,6 +20,7 @@ namespace SharpDXPractice
         public DSystemConfiguration Configuration { get; private set; }
         public DInput Input { get; private set; }
         public DGraphics Graphics { get; private set; }
+        public DSound Sound { get; private set; }
 
         // Constructor
         public DSystem() { }
@@ -53,6 +54,18 @@ namespace SharpDXPractice
                 Graphics = new DGraphics();
                 result = Graphics.Initialize(Configuration, RenderForm.Handle);
             }
+            if (Sound == null)
+            {
+                Sound = new DSound("sound01.wav");
+
+                if (!Sound.Initialize(RenderForm.Handle))
+                {
+                    MessageBox.Show("Could not initialize Direct Sound.");
+                    return false;
+                }
+            }
+
+            Sound.PlayWavFile(5);
 
             return result;
         }
