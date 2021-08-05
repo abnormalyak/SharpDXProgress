@@ -158,7 +158,7 @@ namespace SharpDXPractice.Input
                 // resetting the string if it gets too long.
                 foreach (string s in pressedKeyList)
                 {
-                    if (PressedKeys.Length < 16)
+                    if (PressedKeys.Length < 64)
                         PressedKeys += s;
                     else
                     {

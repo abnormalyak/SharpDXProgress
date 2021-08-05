@@ -65,7 +65,7 @@ namespace SharpDXPractice.Graphics
             if (!UpdateSentence(ref sentences[1], "Goodbye", 100, 200, 1, 0, 0, deviceContext))
                 return false;
 
-            if (!InitializeSentence(out sentences[2], 16, device))
+            if (!InitializeSentence(out sentences[2], 64, device))
                 return false;
 
             return true;
