@@ -28,7 +28,7 @@ namespace SharpDXPractice.Graphics
         private int ScreenHeight { get; set; }
         private Matrix BaseViewMatrix { get; set; }
 
-        private SentenceType[] sentences = new SentenceType[3];
+        private SentenceType[] sentences = new SentenceType[5];
 
 
         public DText() { }
@@ -53,19 +53,30 @@ namespace SharpDXPractice.Graphics
                 return false;
 
             // Create and initialize strings to display
+            // Used for mouse X position display
             if (!InitializeSentence(out sentences[0], 16, device))
                 return false;
 
             if (!UpdateSentence(ref sentences[0], "Hello", 100, 100, 1, 1, 1, deviceContext))
                 return false;
 
+            // Used for mouse Y position display
             if (!InitializeSentence(out sentences[1], 16, device))
                 return false;
 
             if (!UpdateSentence(ref sentences[1], "Goodbye", 100, 200, 1, 0, 0, deviceContext))
                 return false;
 
+            // Used for user's pressed keys display
             if (!InitializeSentence(out sentences[2], 64, device))
+                return false;
+
+            // Used for FPS counter
+            if (!InitializeSentence(out sentences[3], 32, device))
+                return false;
+
+            // Used for CPU usage display
+            if (!InitializeSentence(out sentences[4], 32, device))
                 return false;
 
             return true;
@@ -210,6 +221,42 @@ namespace SharpDXPractice.Graphics
         public bool SetPressedKeys(string pressedKeys, DeviceContext deviceContext)
         {
             return UpdateSentence(ref sentences[2], "Pressed keys: " + pressedKeys, 20, 70, 1, 0, 1, deviceContext);
+        }
+
+        public bool SetFps(int fps, DeviceContext deviceContext)
+        {
+            // Default colour to white
+            float red = 1, green = 1, blue = 1;
+
+            // Cap fps to 9999
+            if (fps > 9999)
+            {
+                fps = 9999;
+            }
+
+            // Convert the fps to string format
+            string fpsString = "FPS: " + fps.ToString();
+
+            // If FPS >= 60, set colour to green
+            if (fps >= 60)
+                red = blue = 0;
+
+            // If FPS < 60, set colour to yellow
+            if (fps < 60)
+                blue = 0;
+
+            // If FPS < 30, set colour to red
+            if (fps < 30)
+                green = 0;
+
+            return UpdateSentence(ref sentences[3], fpsString, 20, 100, red, green, blue, deviceContext);
+        }
+
+        public bool SetCpuUsage(int cpuUsage, DeviceContext deviceContext)
+        {
+            string cpuUsageString = "CPU: " + cpuUsage.ToString();
+
+            return UpdateSentence(ref sentences[4], cpuUsageString, 20, 130, 0, 1, 0, deviceContext);
         }
     }
 }
