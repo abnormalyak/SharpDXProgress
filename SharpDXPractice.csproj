@@ -39,10 +39,15 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Graphics\DBitmap.cs" />
+    <Compile Include="Graphics\Models\DBitmap.cs" />
     <Compile Include="Graphics\DCamera.cs" />
-    <Compile Include="Graphics\DCursor.cs" />
+    <Compile Include="Graphics\Models\DCursor.cs" />
     <Compile Include="Graphics\DDX11.cs" />
+    <Compile Include="Graphics\Models\DFrustum.cs" />
+    <Compile Include="Graphics\Models\DModelList.cs" />
+    <Compile Include="Input\DPosition.cs" />
+    <Content Include="Shaders\Tut16LightPS.hlsl" />
+    <Content Include="Shaders\Tut16LightVS.hlsl" />
     <Compile Include="System\Performance\DCpu.cs" />
     <Compile Include="System\Performance\DFps.cs" />
     <Compile Include="Graphics\Text\DFont.cs" />
@@ -50,7 +55,7 @@
     <Compile Include="Graphics\DGraphics.cs" />
     <Compile Include="Graphics\Light\DLight.cs" />
     <Compile Include="Graphics\Light\DLightShader.cs" />
-    <Compile Include="Graphics\DModel.cs" />
+    <Compile Include="Graphics\Models\DModel.cs" />
     <Compile Include="Archive\Tut04\DTriangleColorShader.cs" />
     <Compile Include="Graphics\Text\DText.cs" />
     <Compile Include="Graphics\DTexture.cs" />

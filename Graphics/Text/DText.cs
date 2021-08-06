@@ -28,7 +28,7 @@ namespace SharpDXPractice.Graphics
         private int ScreenHeight { get; set; }
         private Matrix BaseViewMatrix { get; set; }
 
-        private SentenceType[] sentences = new SentenceType[5];
+        private SentenceType[] sentences = new SentenceType[6];
 
 
         public DText() { }
@@ -77,6 +77,10 @@ namespace SharpDXPractice.Graphics
 
             // Used for CPU usage display
             if (!InitializeSentence(out sentences[4], 32, device))
+                return false;
+
+            // Used for render count display
+            if (!InitializeSentence(out sentences[5], 32, device))
                 return false;
 
             return true;
@@ -257,6 +261,13 @@ namespace SharpDXPractice.Graphics
             string cpuUsageString = "CPU: " + cpuUsage.ToString();
 
             return UpdateSentence(ref sentences[4], cpuUsageString, 20, 130, 0, 1, 0, deviceContext);
+        }
+
+        public bool SetRenderCount(int renderCount, DeviceContext deviceContext)
+        {
+            string renderCountString = "Render count: " + renderCount.ToString();
+
+            return UpdateSentence(ref sentences[5], renderCountString, 20, 160, 0, 1, 0, deviceContext);
         }
     }
 }

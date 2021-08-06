@@ -1,5 +1,6 @@
 ﻿using SharpDX;
 using SharpDXPractice.Archive.Tut05;
+using SharpDXPractice.Input;
 using SharpDXPractice.System;
 using System;
 using System.Collections.Generic;
@@ -27,6 +28,8 @@ namespace SharpDXPractice.Graphics
         private float pulseStage = 0;
         private int fadeTime = 5; // The time (in seconds) to fade between colours
         #endregion
+        public DFrustum Frustum { get; set; }
+        public DModelList ModelList { get; set; }
 
         public DGraphics() { }
 
@@ -58,6 +61,9 @@ namespace SharpDXPractice.Graphics
                     return false;
                 // END
 
+                // Create the frustum object
+                Frustum = new DFrustum();
+                
                 // Create the model object
                 Model = new DModel();
 
@@ -80,14 +86,21 @@ namespace SharpDXPractice.Graphics
                     return false;
                 }
 
+                // Create and set parameters of the light object
                 Light = new DLight();
-
                 Light.SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
                 Light.SetDiffuseColor(0.95f, 0.6f, 0, 1);
                 Light.SetDirection(1, 0, 0);
                 Light.specularPower = 32;
                 Light.SetSpecularColor(1, 1, 1, 1);
 
+                // Create and initialize the model list object
+                ModelList = new DModelList();
+                if (!ModelList.Initialize(25))
+                {
+                    MessageBox.Show("Could not initialize the model list object.");
+                    return false;
+                }
                 // END
 
                 // START For rendering cursor, uncomment
@@ -127,10 +140,15 @@ namespace SharpDXPractice.Graphics
         }
         public void ShutDown()
         {
-            Text?.ShutDown();
-            Text = null;
+            Frustum = null;
 
             Light = null;
+
+            ModelList?.Shutdown();
+            ModelList = null;
+
+            Text?.ShutDown();
+            Text = null;
 
             LightShader?.ShutDown();
             LightShader = null;
@@ -147,10 +165,10 @@ namespace SharpDXPractice.Graphics
             D3D = null;
         }
 
-        public bool Frame(int mouseX, int mouseY, string pressedKeys, /* Performance */ int fps, int cpuUsage, float frameTime, bool pulseCursorColor = true)
+        public bool Frame(int mouseX, int mouseY, string pressedKeys, /* Performance */ int fps, int cpuUsage, float frameTime, DPosition position, bool pulseCursorColor = true)
         {
             bool resultMouse = true, resultKeyboard = true;
-            Rotate();
+            //Rotate();
 
             // Set the location of the mouse
             if (!Text.SetMousePosition(mouseX, mouseY, D3D.DeviceContext))
@@ -178,6 +196,9 @@ namespace SharpDXPractice.Graphics
 
             // Set the position of the camera
             Camera.SetPosition(0, 0, -5);
+
+            // Set the rotation of the camera
+            Camera.SetRotation(0, position.RotationY, 0);
 
             //return Render(rotation);
             return (resultMouse | resultKeyboard);
@@ -264,7 +285,7 @@ namespace SharpDXPractice.Graphics
             return result;
         }
 
-        public bool Render(float rotation, int mouseX, int mouseY)
+        public bool Render(int mouseX, int mouseY)
         {
             Matrix viewMatrix, projectionMatrix, worldMatrix3D, worldMatrix2D, orthoMatrix;
 
@@ -283,31 +304,85 @@ namespace SharpDXPractice.Graphics
             // Get ortho matrix
             orthoMatrix = D3D.OrthoMatrix;
 
-            // START 3D rendering (comment out for 2D)
-            
+            #region Frustum culling
             D3D.TurnOffAlphaBlending();
-            D3D.TurnZBufferOn(); // Begin 3D rendering
-            // Rotate the world matrix by the rotation value (makes model spin)
-            Matrix.RotationY(rotation, out worldMatrix3D);
+            D3D.TurnZBufferOn();
 
-            // Put the model vertex and index buffers on the graphics pipeline to prepare them from drawing
-            Model.Render(D3D.DeviceContext);
-
-            // Render the model using the colour shader
-            if (!LightShader.Render(D3D.DeviceContext,
-                Model.IndexCount,
-                worldMatrix3D, viewMatrix, projectionMatrix,
-                Model.Texture.TextureResource,
-                Light.direction, Light.diffuseColor, Light.ambientColor,
-                Light.specularPower, Light.specularColor,
-                Camera.GetPosition()))
-            {
-                MessageBox.Show("Texture shader failed");
-                return false;
-            }
+            // Construct the frustum
+            Frustum.ConstructFrustum(DSystemConfiguration.ScreenDepth, projectionMatrix, viewMatrix);
             
+            // Initialize the count of the models that have been rendered
+            var renderCount = 0;
 
-            // START 2D rendering (comment out for 3D / text)
+            Vector3 position;
+            Vector4 color;
+
+            // Go through every model, and render them only if they can be seen
+            for (int i = 0; i < ModelList.ModelCount; i++)
+            {
+                // Get the position and color of the sphere model at this index
+                ModelList.GetData(i, out position, out color);
+
+                // Adjust the position of the moel before checking whether it
+                // is in view
+                position = Vector3.TransformCoordinate(position, worldMatrix3D);
+
+                // Set the radius of the sphere to 1.0
+                var radius = 1.0f;
+
+                // If the model can be seen, render it
+                if (Frustum.CheckSphere(position, radius))
+                {
+                    // Move the model to the location it should be rendered at
+                    worldMatrix3D *= Matrix.Translation(position);
+
+                    // Put the model vertex and index buffers on the graphics pipeline
+                    Model.Render(D3D.DeviceContext);
+
+                    // Render the model using the colour shader
+                    if (!LightShader.Render(D3D.DeviceContext, Model.IndexCount,
+                        worldMatrix3D, viewMatrix, projectionMatrix, Model.Texture.TextureResource,
+                        Light.direction, Light.diffuseColor, Light.ambientColor, Light.specularPower, Light.specularColor,
+                        Camera.GetPosition()))
+                        return false;
+
+                    // Reset world matrix
+                    worldMatrix3D = D3D.WorldMatrix * Matrix.RotationY(rotation);
+
+                    // This model was rendered; increase the count
+                    renderCount++;
+                }
+            }
+            // Set the number of models rendered this frame
+            if (!Text.SetRenderCount(renderCount, D3D.DeviceContext))
+                return false;
+            #endregion
+
+            #region 3D rendering
+            //D3D.TurnOffAlphaBlending();
+            //D3D.TurnZBufferOn(); // Begin 3D rendering
+            //// Rotate the world matrix by the rotation value (makes model spin)
+            //Matrix.RotationY(rotation, out worldMatrix3D);
+
+            //// Put the model vertex and index buffers on the graphics pipeline to prepare them from drawing
+            //Model.Render(D3D.DeviceContext);
+
+            //// Render the model using the colour shader
+            //if (!LightShader.Render(D3D.DeviceContext,
+            //    Model.IndexCount,
+            //    worldMatrix3D, viewMatrix, projectionMatrix,
+            //    Model.Texture.TextureResource,
+            //    Light.direction, Light.diffuseColor, Light.ambientColor,
+            //    Light.specularPower, Light.specularColor,
+            //    Camera.GetPosition()))
+            //{
+            //    MessageBox.Show("Texture shader failed");
+            //    return false;
+            //}
+            #endregion
+
+
+            #region 2D rendering
             /*
             D3D.TurnZBufferOff();
 
@@ -319,20 +394,23 @@ namespace SharpDXPractice.Graphics
             if (!TextureShader.Render(D3D.DeviceContext, Bitmap.IndexCount, worldMatrix, viewMatrix, orthoMatrix, Bitmap.Texture.TextureResource))
                 return false;
             */
-            // END
+            #endregion
 
-            // START 2D text rendering (comment out 2D / 3D)
+            #region 2D text rendering
             D3D.TurnZBufferOff(); // Begin 2D rendering
             D3D.TurnOnAlphaBlending();
 
             if (!Text.Render(D3D.DeviceContext, worldMatrix2D, orthoMatrix))
                 return false;
-            // END
+            #endregion
 
-            // START 2D cursor rendering
+            #region 2D cursor rendering
             if (!Cursor.Render(D3D.DeviceContext, worldMatrix2D, orthoMatrix))
                 return false;
-            // END
+            #endregion
+
+            D3D.TurnZBufferOn();
+            D3D.TurnOffAlphaBlending();
 
             // Present the rendered scene to the screen
             D3D.EndScene();

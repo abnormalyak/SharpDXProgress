@@ -330,12 +330,14 @@ namespace SharpDXPractice.Graphics
                 deviceContext.PixelShader.SetConstantBuffer(bufferSlotNumber, ConstantLightBuffer);
 
                 // Lock camera constant buffer so it can be written to
+                /*
                 deviceContext.MapSubresource(ConstantCameraBuffer,
                     MapMode.WriteDiscard,
                     MapFlags.None,
                     out mappedResource);
 
                 // Copy camera variables into constant buffer
+                
                 DCameraBuffer cameraBuffer = new DCameraBuffer()
                 {
                     cameraPosition = cameraPosition,
@@ -348,6 +350,7 @@ namespace SharpDXPractice.Graphics
                 bufferSlotNumber = 1;
 
                 deviceContext.VertexShader.SetConstantBuffer(bufferSlotNumber, ConstantCameraBuffer);
+                */
 
                 return true;
             }

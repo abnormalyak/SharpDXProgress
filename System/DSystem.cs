@@ -25,6 +25,7 @@ namespace SharpDXPractice
         public DFps Fps { get; private set; }
         public DCpu Cpu { get; private set; }
         public DTimer Timer { get; private set; }
+        public DPosition Position { get; private set; }
 
         // Constructor
         public DSystem() { }
@@ -88,6 +89,8 @@ namespace SharpDXPractice
             }
             #endregion
 
+            Position = new DPosition();
+
             return result;
         }
         private void InitializeWindows(string title)
@@ -129,12 +132,19 @@ namespace SharpDXPractice
             int mouseX, mouseY;
             Input.GetMouseLocation(out mouseX, out mouseY);
 
+            // Set frame time for calculating the updated position
+            Position.FrameTime = Timer.FrameTime;
+
+            // Check if l / r arrow key pressed; rotate camera accordingly
+            Position.TurnLeft(Input.IsLeftArrowPressed());
+            Position.TurnRight(Input.IsRightArrowPressed());
+
             // Do the frame processing for the graphics object
-            if (!Graphics.Frame(mouseX, mouseY, Input.PressedKeys, Fps.Fps, Cpu.CpuUsage, Timer.FrameTime))
+            if (!Graphics.Frame(mouseX, mouseY, Input.PressedKeys, Fps.Fps, Cpu.CpuUsage, Timer.FrameTime, Position))
                 return false;
 
             // Render the graphics to the screen
-            if (!Graphics.Render(DGraphics.rotation, mouseX, mouseY))
+            if (!Graphics.Render(mouseX, mouseY))
                 return false;
 
             return true;
@@ -145,7 +155,8 @@ namespace SharpDXPractice
             ShutdownWindows();
 
             Timer = null;
-            
+            Position = null;
+
             Cpu?.Shutdown();
             Cpu = null;
 

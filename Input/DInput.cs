@@ -261,5 +261,15 @@ namespace SharpDXPractice.Input
             mouseX = MouseX;
             mouseY = MouseY;
         }
+
+        public bool IsLeftArrowPressed()
+        {
+            return KeyboardState.PressedKeys != null && KeyboardState.PressedKeys.Contains(Key.Left);
+        }
+        
+        public bool IsRightArrowPressed()
+        {
+            return KeyboardState.PressedKeys != null && KeyboardState.PressedKeys.Contains(Key.Right);
+        }
     }
 }
