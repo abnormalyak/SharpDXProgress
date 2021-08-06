@@ -147,7 +147,7 @@ namespace SharpDXPractice.Graphics
             D3D = null;
         }
 
-        public bool Frame(int mouseX, int mouseY, string pressedKeys, bool pulseCursorColor = false)
+        public bool Frame(int mouseX, int mouseY, string pressedKeys, /* Performance */ int fps, int cpuUsage, float frameTime, bool pulseCursorColor = true)
         {
             bool resultMouse = true, resultKeyboard = true;
             Rotate();
@@ -164,8 +164,17 @@ namespace SharpDXPractice.Graphics
             if (!Cursor.SetMousePositionAndColor(mouseX, mouseY, red, green, blue, D3D.DeviceContext))
                 return false;
 
+            // Pulse cursor colour
             if (pulseCursorColor)
                 PulseCursorColor();
+
+            // Set the FPS
+            if (!Text.SetFps(fps, D3D.DeviceContext))
+                return false;
+
+            // Set the CPU usage
+            if (!Text.SetCpuUsage(cpuUsage, D3D.DeviceContext))
+                return false;
 
             // Set the position of the camera
             Camera.SetPosition(0, 0, -5);

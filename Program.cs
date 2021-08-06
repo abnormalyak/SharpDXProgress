@@ -10,7 +10,7 @@ namespace SharpDXPractice
     {
         static void Main()
         {
-            DSystem.StartRenderForm("SharpDX", 1280, 720, true) ;
+            DSystem.StartRenderForm("SharpDX", 1280, 720, false);
         }
     }
 }

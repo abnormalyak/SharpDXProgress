@@ -43,14 +43,16 @@
     <Compile Include="Graphics\DCamera.cs" />
     <Compile Include="Graphics\DCursor.cs" />
     <Compile Include="Graphics\DDX11.cs" />
-    <Compile Include="Graphics\DFont.cs" />
-    <Compile Include="Graphics\DFontShader.cs" />
+    <Compile Include="System\Performance\DCpu.cs" />
+    <Compile Include="System\Performance\DFps.cs" />
+    <Compile Include="Graphics\Text\DFont.cs" />
+    <Compile Include="Graphics\Text\DFontShader.cs" />
     <Compile Include="Graphics\DGraphics.cs" />
-    <Compile Include="Graphics\DLight.cs" />
-    <Compile Include="Graphics\DLightShader.cs" />
+    <Compile Include="Graphics\Light\DLight.cs" />
+    <Compile Include="Graphics\Light\DLightShader.cs" />
     <Compile Include="Graphics\DModel.cs" />
     <Compile Include="Archive\Tut04\DTriangleColorShader.cs" />
-    <Compile Include="Graphics\DText.cs" />
+    <Compile Include="Graphics\Text\DText.cs" />
     <Compile Include="Graphics\DTexture.cs" />
     <Compile Include="Archive\Tut05\DTextureShader.cs" />
     <Compile Include="ObjLoader\DFace.cs" />
@@ -63,6 +65,7 @@
     <Compile Include="Sound\DSound.cs" />
     <Compile Include="System\DSystem.cs" />
     <Compile Include="System\DSystemConfiguration.cs" />
+    <Compile Include="System\Performance\DTimer.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="SharpDX, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">

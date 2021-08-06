@@ -10,6 +10,7 @@ using SharpDXPractice.Input;
 using SharpDXPractice.Graphics;
 using SharpDXPractice.System;
 using SharpDXPractice.Sound;
+using SharpDXPractice.System.Performance;
 
 namespace SharpDXPractice
 {
@@ -21,6 +22,9 @@ namespace SharpDXPractice
         public DInput Input { get; private set; }
         public DGraphics Graphics { get; private set; }
         public DSound Sound { get; private set; }
+        public DFps Fps { get; private set; }
+        public DCpu Cpu { get; private set; }
+        public DTimer Timer { get; private set; }
 
         // Constructor
         public DSystem() { }
@@ -54,18 +58,35 @@ namespace SharpDXPractice
                 Graphics = new DGraphics();
                 result = Graphics.Initialize(Configuration, RenderForm.Handle);
             }
-            if (Sound == null)
+            #region Sound
+            //if (Sound == null)
+            //{
+            //    Sound = new DSound("sound01.wav");
+
+            //    if (!Sound.Initialize(RenderForm.Handle))
+            //    {
+            //        MessageBox.Show("Could not initialize Direct Sound.");
+            //        return false;
+            //    }
+            //}
+
+            //Sound.PlayWavFile(5);
+            #endregion
+
+            #region Performance
+            Fps = new DFps();
+            Fps.Initialize();
+
+            Cpu = new DCpu();
+            Cpu.Initialize();
+
+            Timer = new DTimer();
+            if (!Timer.Initialize())
             {
-                Sound = new DSound("sound01.wav");
-
-                if (!Sound.Initialize(RenderForm.Handle))
-                {
-                    MessageBox.Show("Could not initialize Direct Sound.");
-                    return false;
-                }
+                MessageBox.Show("Could not initialize the timer object.");
+                return false;
             }
-
-            Sound.PlayWavFile(5);
+            #endregion
 
             return result;
         }
@@ -99,12 +120,17 @@ namespace SharpDXPractice
             if (!Input.Frame() || Input.IsEscapePressed())
                 return false;
 
+            // Performance stats
+            Cpu.Frame();
+            Fps.Frame();
+            Timer.Frame();
+
             // Update the Graphics class with the location of the mouse
             int mouseX, mouseY;
             Input.GetMouseLocation(out mouseX, out mouseY);
 
             // Do the frame processing for the graphics object
-            if (!Graphics.Frame(mouseX, mouseY, Input.PressedKeys, true))
+            if (!Graphics.Frame(mouseX, mouseY, Input.PressedKeys, Fps.Fps, Cpu.CpuUsage, Timer.FrameTime))
                 return false;
 
             // Render the graphics to the screen
@@ -113,9 +139,17 @@ namespace SharpDXPractice
 
             return true;
         }
+
         public void ShutDown()
         {
             ShutdownWindows();
+
+            Timer = null;
+            
+            Cpu?.Shutdown();
+            Cpu = null;
+
+            Fps = null;
 
             Graphics?.ShutDown();
             Graphics = null;
