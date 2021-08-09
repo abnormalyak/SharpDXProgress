@@ -71,7 +71,7 @@ namespace SharpDXPractice.Graphics
             Matrix rotationMatrix = Matrix.RotationYawPitchRoll(yaw, pitch, roll);
 
             // Transform the lookAt and up vector by the rotation matrix so the view is correctly rotated at the origin
-            Vector3.TransformCoordinate(lookAt, rotationMatrix);
+            lookAt = Vector3.TransformCoordinate(lookAt, rotationMatrix);
             Vector3 up = Vector3.TransformCoordinate(Vector3.UnitY, rotationMatrix);
 
             // Translate the rotated camera position to the location of the viewer

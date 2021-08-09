@@ -206,9 +206,9 @@ namespace SharpDXPractice.Graphics
 
         public bool Frame(DPosition position)
         {
-            Camera.SetPosition(0, 0, -10f);
+            Camera.SetPosition(0, 0, -5f);
 
-            Camera.SetRotation(position.RotationY, position.RotationY, 0);
+            Camera.SetRotation(0, position.RotationY, 0);
 
             return true;
         }
