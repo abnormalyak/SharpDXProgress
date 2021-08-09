@@ -1,6 +1,7 @@
 ﻿using SharpDX;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -78,6 +79,9 @@ namespace SharpDXPractice.Graphics
 
             // Create the view matrix from the three updated vectors
             ViewMatrix = Matrix.LookAtLH(position, lookAt, up);
+
+            Debug.WriteLine($"Camera position: {PosX}, {PosY}, {PosZ}");
+            Debug.WriteLine($"Camera rotation: {RotX}, {RotY}, {RotZ}");
         }
     }
 }

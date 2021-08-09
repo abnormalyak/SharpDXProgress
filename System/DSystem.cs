@@ -117,34 +117,62 @@ namespace SharpDXPractice
                     ShutDown();
             });
         }
+        //public bool Frame()
+        //{
+        //    // Check if the user pressed escape and wants to exit the application.
+        //    if (!Input.Frame() || Input.IsEscapePressed())
+        //        return false;
+
+        //    // Performance stats
+        //    Cpu.Frame();
+        //    Fps.Frame();
+        //    Timer.Frame();
+
+        //    // Update the Graphics class with the location of the mouse
+        //    int mouseX, mouseY;
+        //    Input.GetMouseLocation(out mouseX, out mouseY);
+
+        //    // Set frame time for calculating the updated position
+        //    Position.FrameTime = Timer.FrameTime;
+
+        //    // Check if l / r arrow key pressed; rotate camera accordingly
+        //    Position.TurnLeft(Input.IsLeftArrowPressed());
+        //    Position.TurnRight(Input.IsRightArrowPressed());
+
+        //    // Do the frame processing for the graphics object
+        //    if (!Graphics.Frame(mouseX, mouseY, Input.PressedKeys, Fps.Fps, Cpu.CpuUsage, Timer.FrameTime, Position))
+        //        return false;
+
+        //    // Render the graphics to the screen
+        //    if (!Graphics.Render(mouseX, mouseY))
+        //        return false;
+
+        //    return true;
+        //}
+
         public bool Frame()
         {
-            // Check if the user pressed escape and wants to exit the application.
             if (!Input.Frame() || Input.IsEscapePressed())
                 return false;
 
-            // Performance stats
-            Cpu.Frame();
-            Fps.Frame();
+            // Update the system stats.
             Timer.Frame();
 
-            // Update the Graphics class with the location of the mouse
-            int mouseX, mouseY;
-            Input.GetMouseLocation(out mouseX, out mouseY);
-
-            // Set frame time for calculating the updated position
+            // Set the frame time for calculating the updated position.
             Position.FrameTime = Timer.FrameTime;
 
-            // Check if l / r arrow key pressed; rotate camera accordingly
-            Position.TurnLeft(Input.IsLeftArrowPressed());
-            Position.TurnRight(Input.IsRightArrowPressed());
+            // Check if the left or right arrow key has been pressed, if so rotate the camera accordingly.
+            bool keydown = Input.IsLeftArrowPressed();
+            Position.TurnLeft(keydown);
+            keydown = Input.IsRightArrowPressed();
+            Position.TurnRight(keydown);
 
-            // Do the frame processing for the graphics object
-            if (!Graphics.Frame(mouseX, mouseY, Input.PressedKeys, Fps.Fps, Cpu.CpuUsage, Timer.FrameTime, Position))
+            // Do the frame processing for the graphics object.
+            if (!Graphics.Frame(Position))
                 return false;
 
-            // Render the graphics to the screen
-            if (!Graphics.Render(mouseX, mouseY))
+            // Finally render the graphics to the screen.
+            if (!Graphics.Render())
                 return false;
 
             return true;

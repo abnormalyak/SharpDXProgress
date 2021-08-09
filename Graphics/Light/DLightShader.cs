@@ -187,17 +187,17 @@ namespace SharpDXPractice.Graphics
                 // Create the constant buffer pointer to allow access to the vertex shader constant buffer
                 ConstantLightBuffer = new SharpDX.Direct3D11.Buffer(device, lightBufferDesc);
 
-                var cameraBufferDesc = new BufferDescription()
-                {
-                    Usage = ResourceUsage.Dynamic,
-                    SizeInBytes = Utilities.SizeOf<DCameraBuffer>(),
-                    BindFlags = BindFlags.ConstantBuffer,
-                    CpuAccessFlags = CpuAccessFlags.Write,
-                    OptionFlags = ResourceOptionFlags.None,
-                    StructureByteStride = 0
-                };
+                //var cameraBufferDesc = new BufferDescription()
+                //{
+                //    Usage = ResourceUsage.Dynamic,
+                //    SizeInBytes = Utilities.SizeOf<DCameraBuffer>(),
+                //    BindFlags = BindFlags.ConstantBuffer,
+                //    CpuAccessFlags = CpuAccessFlags.Write,
+                //    OptionFlags = ResourceOptionFlags.None,
+                //    StructureByteStride = 0
+                //};
 
-                ConstantCameraBuffer = new SharpDX.Direct3D11.Buffer(device, cameraBufferDesc);
+                //ConstantCameraBuffer = new SharpDX.Direct3D11.Buffer(device, cameraBufferDesc);
 
                 return true;
             }

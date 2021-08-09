@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,7 +26,8 @@ namespace SharpDXPractice.Input
             // If the key is pressed, increase the speed at which the camera turns left
             if (keyDown)
             {
-                _leftTurnSpeed = Math.Min(_leftTurnSpeed + (FrameTime * 0.01f), 0.15f);
+                _leftTurnSpeed = Math.Min(_leftTurnSpeed + (FrameTime * 0.01f), FrameTime * 0.15f);
+                Debug.WriteLine(_leftTurnSpeed);
             }
             // Otherwise, decrease the speed
             else
@@ -42,12 +44,12 @@ namespace SharpDXPractice.Input
             // If the key is pressed, increase the speed at which the camera turns right
             if (keyDown)
             {
-                _rightTurnSpeed = Math.Min(_rightTurnSpeed + FrameTime * 0.01f, 0.15f);
+                _rightTurnSpeed = Math.Min(_rightTurnSpeed + FrameTime * 0.01f, FrameTime * 0.15f);
             }
             // Otherwise, decrease the speed
             else
             {
-                _rightTurnSpeed = Math.Max(_rightTurnSpeed - FrameTime * 0.005f, 0);
+                _rightTurnSpeed = Math.Max(_rightTurnSpeed - (FrameTime * 0.005f), 0);
             }
 
             RotationY += _rightTurnSpeed;

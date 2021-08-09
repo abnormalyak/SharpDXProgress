@@ -3,6 +3,7 @@ using SharpDX.DirectInput;
 using SharpDXPractice.System;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -171,6 +172,7 @@ namespace SharpDXPractice.Input
             catch (SharpDXException ex)
             {
                 resultCode = ex.Descriptor;
+                Debug.WriteLine(resultCode);
             }
 
             if (resultCode == ResultCode.InputLost || resultCode == ResultCode.NotAcquired)
@@ -210,6 +212,7 @@ namespace SharpDXPractice.Input
             catch (SharpDXException ex)
             {
                 resultCode = ex.Descriptor;
+                Debug.WriteLine(resultCode);
             }
 
             if (resultCode == ResultCode.InputLost || resultCode == ResultCode.NotAcquired)
