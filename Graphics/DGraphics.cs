@@ -20,6 +20,7 @@ namespace SharpDXPractice.Graphics
         private DLightShader LightShader { get; set; }
         private DTextureShader TextureShader { get; set; }
         private DMultiTextureShader MultiTextureShader { get; set; }
+        private DMultiTextureLightShader MultiTexLightShader { get; set; }
         private DLight Light { get; set; }
         public static float rotation { get; set; }
         public DBitmap Bitmap { get; set; }
@@ -72,7 +73,7 @@ namespace SharpDXPractice.Graphics
                 // START If rendering 3D models, uncomment
 
                 // Initialize the model
-                if (!MultiTexModel.Initialize(D3D.Device, "sphere.txt", new[] { "watercolor.bmp", "watercolor.bmp" }))
+                if (!MultiTexModel.Initialize(D3D.Device, "sphere.txt", new[] { "watercolor.bmp", "light01.bmp" }))
                 {
                     MessageBox.Show("Could not initialize model object.");
                     return false;
@@ -115,6 +116,11 @@ namespace SharpDXPractice.Graphics
                 // Create multitexture shader
                 MultiTextureShader = new DMultiTextureShader();
                 if (!MultiTextureShader.Initialize(D3D.Device, windowHandle))
+                    return false;
+
+                // Create multitexture light shader
+                MultiTexLightShader = new DMultiTextureLightShader();
+                if (!MultiTexLightShader.Initialize(D3D.Device, windowHandle))
                     return false;
                 // END
 
@@ -297,27 +303,27 @@ namespace SharpDXPractice.Graphics
             #endregion
 
             #region 3D rendering (light)
-            D3D.TurnOffAlphaBlending();
-            D3D.TurnZBufferOn(); // Begin 3D rendering
-            // Rotate the world matrix by the rotation value (makes model spin)
-            Rotate();
-            Matrix.RotationY(rotation, out worldMatrix3D);
+            //D3D.TurnOffAlphaBlending();
+            //D3D.TurnZBufferOn(); // Begin 3D rendering
+            //// Rotate the world matrix by the rotation value (makes model spin)
+            //Rotate();
+            //Matrix.RotationY(rotation, out worldMatrix3D);
 
-            // Put the model vertex and index buffers on the graphics pipeline to prepare them from drawing
-            SingleTexModel.Render(D3D.DeviceContext);
+            //// Put the model vertex and index buffers on the graphics pipeline to prepare them from drawing
+            //SingleTexModel.Render(D3D.DeviceContext);
 
-            // Render the model using the colour shader
-            if (!LightShader.Render(D3D.DeviceContext,
-                SingleTexModel.IndexCount,
-                worldMatrix3D, viewMatrix, projectionMatrix,
-                SingleTexModel.Texture.TextureResource,
-                Light.direction, Light.diffuseColor, Light.ambientColor,
-                Light.specularPower, Light.specularColor,
-                Camera.GetPosition()))
-            {
-                MessageBox.Show("Texture shader failed");
-                return false;
-            }
+            //// Render the model using the colour shader
+            //if (!LightShader.Render(D3D.DeviceContext,
+            //    SingleTexModel.IndexCount,
+            //    worldMatrix3D, viewMatrix, projectionMatrix,
+            //    SingleTexModel.Texture.TextureResource,
+            //    Light.direction, Light.diffuseColor, Light.ambientColor,
+            //    Light.specularPower, Light.specularColor,
+            //    Camera.GetPosition()))
+            //{
+            //    MessageBox.Show("Texture shader failed");
+            //    return false;
+            //}
             #endregion
 
             #region 3D rendering (multitexture)
@@ -338,6 +344,23 @@ namespace SharpDXPractice.Graphics
             //    return false;
             #endregion
 
+            #region 3D rendering (multitexture / light mapping)
+            D3D.TurnOffAlphaBlending();
+            D3D.TurnZBufferOn(); // Begin 3D rendering
+            // Rotate the world matrix by the rotation value (makes model spin)
+            Rotate();
+            Matrix.RotationY(rotation, out worldMatrix3D);
+
+            // Put the model vertex and index buffers on the graphics pipeline to prepare them from drawing
+            MultiTexModel.Render(D3D.DeviceContext);
+
+            if (!MultiTexLightShader.Render(
+                D3D.DeviceContext,
+                MultiTexModel.IndexCount,
+                worldMatrix3D, viewMatrix, projectionMatrix,
+                MultiTexModel.Textures.Textures.Select(item => item.TextureResource).ToArray()))
+                return false;
+            #endregion
 
             #region 2D rendering
             /*
