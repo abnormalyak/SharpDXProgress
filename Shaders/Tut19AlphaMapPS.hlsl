@@ -20,7 +20,7 @@ float4 AlphaMapPixelShader(PixelInputType input) : SV_Target
     alphaValue = shaderTextures[2].Sample(SampleType, input.tex);
     
     // Blend the two pixels together based on the alpha value
-    blendColor = (alphaValue * color1) + ((1.0 - alphaValue) * color2);
+    blendColor = (alphaValue * color1) * ((1.0 - alphaValue) * color2);
     
     blendColor = saturate(blendColor);
     

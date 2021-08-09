@@ -74,7 +74,7 @@ namespace SharpDXPractice.Graphics
                 // START If rendering 3D models, uncomment
 
                 // Initialize the model
-                if (!MultiTexModel.Initialize(D3D.Device, "sphere.txt", new[] { "stone.bmp", "watercolor", "alpha01.bmp" }))
+                if (!MultiTexModel.Initialize(D3D.Device, "sphere.txt", new[] { "stone.bmp", "watercolor.bmp", "alpha01.bmp" }))
                 {
                     MessageBox.Show("Could not initialize model object.");
                     return false;
