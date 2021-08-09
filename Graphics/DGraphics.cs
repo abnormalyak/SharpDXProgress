@@ -18,6 +18,7 @@ namespace SharpDXPractice.Graphics
         private DModel Model { get; set; }
         private DLightShader LightShader { get; set; }
         private DTextureShader TextureShader { get; set; }
+        private DMultiTextureShader MultiTextureShader { get; set; }
         private DLight Light { get; set; }
         public static float rotation { get; set; }
         public DBitmap Bitmap { get; set; }
@@ -70,7 +71,7 @@ namespace SharpDXPractice.Graphics
                 // START If rendering 3D models, uncomment
 
                 // Initialize the model
-                if (!Model.Initialize(D3D.Device, "sphere.txt", "watercolor.bmp"))
+                if (!Model.Initialize(D3D.Device, "sphere.txt", new[] { "watercolor.bmp", "watercolor.bmp" }))
                 {
                     MessageBox.Show("Could not initialize model object.");
                     return false;
@@ -101,6 +102,11 @@ namespace SharpDXPractice.Graphics
                     MessageBox.Show("Could not initialize the model list object.");
                     return false;
                 }
+
+                // Create multitexture shader
+                MultiTextureShader = new DMultiTextureShader();
+                if (!MultiTextureShader.Initialize(D3D.Device, windowHandle))
+                    return false;
                 // END
 
                 // START For rendering cursor, uncomment
@@ -143,6 +149,9 @@ namespace SharpDXPractice.Graphics
             Frustum = null;
 
             Light = null;
+
+            MultiTextureShader?.ShutDown();
+            MultiTextureShader = null;
 
             ModelList?.Shutdown();
             ModelList = null;
@@ -225,60 +234,60 @@ namespace SharpDXPractice.Graphics
             orthoMatrix = D3D.OrthoMatrix;
 
             #region Frustum culling
-            D3D.TurnOffAlphaBlending();
-            D3D.TurnZBufferOn();
+            //D3D.TurnOffAlphaBlending();
+            //D3D.TurnZBufferOn();
 
-            // Construct the frustum
-            Frustum.ConstructFrustum(DSystemConfiguration.ScreenDepth, projectionMatrix, viewMatrix);
+            //// Construct the frustum
+            //Frustum.ConstructFrustum(DSystemConfiguration.ScreenDepth, projectionMatrix, viewMatrix);
 
-            // Initialize the count of the models that have been rendered
-            var renderCount = 0;
+            //// Initialize the count of the models that have been rendered
+            //var renderCount = 0;
 
-            Vector3 position;
-            Vector4 color;
+            //Vector3 position;
+            //Vector4 color;
 
-            // Go through every model, and render them only if they can be seen
-            for (int i = 0; i < ModelList.ModelCount; i++)
-            {
-                // Get the position and color of the sphere model at this index
-                ModelList.GetData(i, out position, out color);
+            //// Go through every model, and render them only if they can be seen
+            //for (int i = 0; i < ModelList.ModelCount; i++)
+            //{
+            //    // Get the position and color of the sphere model at this index
+            //    ModelList.GetData(i, out position, out color);
 
-                // Adjust the position of the moel before checking whether it
-                // is in view
-                position = Vector3.TransformCoordinate(position, worldMatrix3D);
+            //    // Adjust the position of the moel before checking whether it
+            //    // is in view
+            //    position = Vector3.TransformCoordinate(position, worldMatrix3D);
 
-                // Set the radius of the sphere to 1.0
-                var radius = 1.0f;
+            //    // Set the radius of the sphere to 1.0
+            //    var radius = 1.0f;
 
-                // If the model can be seen, render it
-                if (Frustum.CheckSphere(position, radius))
-                {
-                    // Move the model to the location it should be rendered at
-                    worldMatrix3D *= Matrix.Translation(position);
+            //    // If the model can be seen, render it
+            //    if (Frustum.CheckSphere(position, radius))
+            //    {
+            //        // Move the model to the location it should be rendered at
+            //        worldMatrix3D *= Matrix.Translation(position);
 
-                    // Put the model vertex and index buffers on the graphics pipeline
-                    Model.Render(D3D.DeviceContext);
+            //        // Put the model vertex and index buffers on the graphics pipeline
+            //        Model.Render(D3D.DeviceContext);
 
-                    // Render the model using the colour shader
-                    if (!LightShader.Render(D3D.DeviceContext, Model.IndexCount,
-                        worldMatrix3D, viewMatrix, projectionMatrix, Model.Texture.TextureResource,
-                        Light.direction, /* Light.diffuseColor */ color, Light.ambientColor, Light.specularPower, Light.specularColor,
-                        Camera.GetPosition()))
-                        return false;
+            //        // Render the model using the colour shader
+            //        if (!LightShader.Render(D3D.DeviceContext, Model.IndexCount,
+            //            worldMatrix3D, viewMatrix, projectionMatrix, Model.Texture.TextureResource,
+            //            Light.direction, /* Light.diffuseColor */ color, Light.ambientColor, Light.specularPower, Light.specularColor,
+            //            Camera.GetPosition()))
+            //            return false;
 
-                    // Reset world matrix
-                    worldMatrix3D = D3D.WorldMatrix * Matrix.RotationY(rotation);
+            //        // Reset world matrix
+            //        worldMatrix3D = D3D.WorldMatrix * Matrix.RotationY(rotation);
 
-                    // This model was rendered; increase the count
-                    renderCount++;
-                }
-            }
-            // Set the number of models rendered this frame
-            if (!Text.SetRenderCount(renderCount, D3D.DeviceContext))
-                return false;
+            //        // This model was rendered; increase the count
+            //        renderCount++;
+            //    }
+            //}
+            //// Set the number of models rendered this frame
+            //if (!Text.SetRenderCount(renderCount, D3D.DeviceContext))
+            //    return false;
             #endregion
 
-            #region 3D rendering
+            #region 3D rendering (light)
             //D3D.TurnOffAlphaBlending();
             //D3D.TurnZBufferOn(); // Begin 3D rendering
             //// Rotate the world matrix by the rotation value (makes model spin)
@@ -299,6 +308,24 @@ namespace SharpDXPractice.Graphics
             //    MessageBox.Show("Texture shader failed");
             //    return false;
             //}
+            #endregion
+
+            #region 3D rendering (multitexture)
+            D3D.TurnOffAlphaBlending();
+            D3D.TurnZBufferOn(); // Begin 3D rendering
+            // Rotate the world matrix by the rotation value (makes model spin)
+            Rotate();
+            Matrix.RotationY(rotation, out worldMatrix3D);
+
+            // Put the model vertex and index buffers on the graphics pipeline to prepare them from drawing
+            Model.Render(D3D.DeviceContext);
+
+            if (!MultiTextureShader.Render(
+                D3D.DeviceContext,
+                Model.IndexCount,
+                worldMatrix3D, viewMatrix, projectionMatrix,
+                Model.Textures.Textures.Select(item => item.TextureResource).ToArray()))
+                return false;
             #endregion
 
 

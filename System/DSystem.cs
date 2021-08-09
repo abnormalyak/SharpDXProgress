@@ -144,7 +144,7 @@ namespace SharpDXPractice
                 return false;
 
             // Render the graphics to the screen
-            if (!Graphics.Render(mouseX, mouseY))
+            if (!Graphics.Render())
                 return false;
 
             return true;

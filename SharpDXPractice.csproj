@@ -45,7 +45,11 @@
     <Compile Include="Graphics\DDX11.cs" />
     <Compile Include="Graphics\Models\DFrustum.cs" />
     <Compile Include="Graphics\Models\DModelList.cs" />
+    <Compile Include="Graphics\Texture\DMultiTextureShader.cs" />
+    <Compile Include="Graphics\Texture\DTextureArray.cs" />
     <Compile Include="Input\DPosition.cs" />
+    <Content Include="Shaders\Tut17MultiTexPS.hlsl" />
+    <Content Include="Shaders\Tut17MultiTexVS.hlsl" />
     <Content Include="Shaders\Tut16LightPS.hlsl" />
     <Content Include="Shaders\Tut16LightVS.hlsl" />
     <Compile Include="System\Performance\DCpu.cs" />
@@ -58,7 +62,7 @@
     <Compile Include="Graphics\Models\DModel.cs" />
     <Compile Include="Archive\Tut04\DTriangleColorShader.cs" />
     <Compile Include="Graphics\Text\DText.cs" />
-    <Compile Include="Graphics\DTexture.cs" />
+    <Compile Include="Graphics\Texture\DTexture.cs" />
     <Compile Include="Archive\Tut05\DTextureShader.cs" />
     <Compile Include="ObjLoader\DFace.cs" />
     <Compile Include="ObjLoader\DNormal.cs" />
