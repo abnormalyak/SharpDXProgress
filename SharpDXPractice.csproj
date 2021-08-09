@@ -46,11 +46,14 @@
     <Compile Include="Graphics\DDX11.cs" />
     <Compile Include="Graphics\Models\DFrustum.cs" />
     <Compile Include="Graphics\Models\DModelList.cs" />
+    <Compile Include="Graphics\Texture\DAlphaMapShader.cs" />
     <Compile Include="Graphics\Texture\DMultiTextureShader.cs" />
     <Compile Include="Graphics\Texture\DTextureArray.cs" />
     <Compile Include="Input\DPosition.cs" />
+    <Content Include="Shaders\Tut19AlphaMapPS.hlsl" />
     <Content Include="Shaders\Tut18LightMapPS.hlsl" />
     <Content Include="Shaders\Tut17MultiTexPS.hlsl" />
+    <Content Include="Shaders\Tut19AlphaMapVS.hlsl" />
     <Content Include="Shaders\Tut18LightMapVS.hlsl" />
     <Content Include="Shaders\Tut17MultiTexVS.hlsl" />
     <Content Include="Shaders\Tut16LightPS.hlsl" />

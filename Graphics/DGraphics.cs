@@ -21,6 +21,7 @@ namespace SharpDXPractice.Graphics
         private DTextureShader TextureShader { get; set; }
         private DMultiTextureShader MultiTextureShader { get; set; }
         private DMultiTextureLightShader MultiTexLightShader { get; set; }
+        private DAlphaMapShader AlphaMapShader { get; set; }
         private DLight Light { get; set; }
         public static float rotation { get; set; }
         public DBitmap Bitmap { get; set; }
@@ -73,7 +74,7 @@ namespace SharpDXPractice.Graphics
                 // START If rendering 3D models, uncomment
 
                 // Initialize the model
-                if (!MultiTexModel.Initialize(D3D.Device, "sphere.txt", new[] { "watercolor.bmp", "light01.bmp" }))
+                if (!MultiTexModel.Initialize(D3D.Device, "sphere.txt", new[] { "stone.bmp", "watercolor", "alpha01.bmp" }))
                 {
                     MessageBox.Show("Could not initialize model object.");
                     return false;
@@ -118,9 +119,14 @@ namespace SharpDXPractice.Graphics
                 if (!MultiTextureShader.Initialize(D3D.Device, windowHandle))
                     return false;
 
-                // Create multitexture light shader
+                // Create light mapping shader
                 MultiTexLightShader = new DMultiTextureLightShader();
                 if (!MultiTexLightShader.Initialize(D3D.Device, windowHandle))
+                    return false;
+
+                // Create alpha mapping shader
+                AlphaMapShader = new DAlphaMapShader();
+                if (!AlphaMapShader.Initialize(D3D.Device, windowHandle))
                     return false;
                 // END
 
@@ -354,7 +360,7 @@ namespace SharpDXPractice.Graphics
             // Put the model vertex and index buffers on the graphics pipeline to prepare them from drawing
             MultiTexModel.Render(D3D.DeviceContext);
 
-            if (!MultiTexLightShader.Render(
+            if (!AlphaMapShader.Render(
                 D3D.DeviceContext,
                 MultiTexModel.IndexCount,
                 worldMatrix3D, viewMatrix, projectionMatrix,
