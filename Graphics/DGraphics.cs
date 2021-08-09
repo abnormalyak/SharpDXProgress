@@ -15,7 +15,8 @@ namespace SharpDXPractice.Graphics
     {
         private DDX11 D3D { get; set; }
         private DCamera Camera { get; set; }
-        private DModel Model { get; set; }
+        private DModel MultiTexModel { get; set; }
+        private DModel SingleTexModel { get; set; }
         private DLightShader LightShader { get; set; }
         private DTextureShader TextureShader { get; set; }
         private DMultiTextureShader MultiTextureShader { get; set; }
@@ -66,12 +67,20 @@ namespace SharpDXPractice.Graphics
                 Frustum = new DFrustum();
                 
                 // Create the model object
-                Model = new DModel();
+                MultiTexModel = new DModel();
 
                 // START If rendering 3D models, uncomment
 
                 // Initialize the model
-                if (!Model.Initialize(D3D.Device, "sphere.txt", new[] { "watercolor.bmp", "watercolor.bmp" }))
+                if (!MultiTexModel.Initialize(D3D.Device, "sphere.txt", new[] { "watercolor.bmp", "watercolor.bmp" }))
+                {
+                    MessageBox.Show("Could not initialize model object.");
+                    return false;
+                }
+
+                SingleTexModel = new DModel();
+
+                if (!SingleTexModel.Initialize(D3D.Device, "sphere.txt", "watercolor.bmp"))
                 {
                     MessageBox.Show("Could not initialize model object.");
                     return false;
@@ -167,8 +176,8 @@ namespace SharpDXPractice.Graphics
             LightShader?.ShutDown();
             LightShader = null;
 
-            Model?.ShutDown();
-            Model = null;
+            MultiTexModel?.ShutDown();
+            MultiTexModel = null;
 
             D3D?.ShutDown();
             D3D = null;
@@ -288,29 +297,6 @@ namespace SharpDXPractice.Graphics
             #endregion
 
             #region 3D rendering (light)
-            //D3D.TurnOffAlphaBlending();
-            //D3D.TurnZBufferOn(); // Begin 3D rendering
-            //// Rotate the world matrix by the rotation value (makes model spin)
-            //Matrix.RotationY(rotation, out worldMatrix3D);
-
-            //// Put the model vertex and index buffers on the graphics pipeline to prepare them from drawing
-            //Model.Render(D3D.DeviceContext);
-
-            //// Render the model using the colour shader
-            //if (!LightShader.Render(D3D.DeviceContext,
-            //    Model.IndexCount,
-            //    worldMatrix3D, viewMatrix, projectionMatrix,
-            //    Model.Texture.TextureResource,
-            //    Light.direction, Light.diffuseColor, Light.ambientColor,
-            //    Light.specularPower, Light.specularColor,
-            //    Camera.GetPosition()))
-            //{
-            //    MessageBox.Show("Texture shader failed");
-            //    return false;
-            //}
-            #endregion
-
-            #region 3D rendering (multitexture)
             D3D.TurnOffAlphaBlending();
             D3D.TurnZBufferOn(); // Begin 3D rendering
             // Rotate the world matrix by the rotation value (makes model spin)
@@ -318,14 +304,38 @@ namespace SharpDXPractice.Graphics
             Matrix.RotationY(rotation, out worldMatrix3D);
 
             // Put the model vertex and index buffers on the graphics pipeline to prepare them from drawing
-            Model.Render(D3D.DeviceContext);
+            SingleTexModel.Render(D3D.DeviceContext);
 
-            if (!MultiTextureShader.Render(
-                D3D.DeviceContext,
-                Model.IndexCount,
+            // Render the model using the colour shader
+            if (!LightShader.Render(D3D.DeviceContext,
+                SingleTexModel.IndexCount,
                 worldMatrix3D, viewMatrix, projectionMatrix,
-                Model.Textures.Textures.Select(item => item.TextureResource).ToArray()))
+                SingleTexModel.Texture.TextureResource,
+                Light.direction, Light.diffuseColor, Light.ambientColor,
+                Light.specularPower, Light.specularColor,
+                Camera.GetPosition()))
+            {
+                MessageBox.Show("Texture shader failed");
                 return false;
+            }
+            #endregion
+
+            #region 3D rendering (multitexture)
+            //D3D.TurnOffAlphaBlending();
+            //D3D.TurnZBufferOn(); // Begin 3D rendering
+            //// Rotate the world matrix by the rotation value (makes model spin)
+            //Rotate();
+            //Matrix.RotationY(rotation, out worldMatrix3D);
+
+            //// Put the model vertex and index buffers on the graphics pipeline to prepare them from drawing
+            //MultiTexModel.Render(D3D.DeviceContext);
+
+            //if (!MultiTextureShader.Render(
+            //    D3D.DeviceContext,
+            //    MultiTexModel.IndexCount,
+            //    worldMatrix3D, viewMatrix, projectionMatrix,
+            //    MultiTexModel.Textures.Textures.Select(item => item.TextureResource).ToArray()))
+            //    return false;
             #endregion
 
 

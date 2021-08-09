@@ -28,10 +28,12 @@ namespace SharpDXPractice.Graphics
         private int VertexCount { get; set; }
         public int IndexCount { get; set; }
         public DTextureArray Textures { get; private set; }
+        public DTexture Texture { get; private set; }
         public DModelFormat[] ModelObject { get; private set; }
 
         public DModel() { }
 
+        // Texture array version
         public bool Initialize(D3D11.Device device, string modelFileName, string[] textureFileNames, bool convertFromObj = false)
         {
             // ObjLoader usage
@@ -54,6 +56,34 @@ namespace SharpDXPractice.Graphics
                 return false;
 
             if (!LoadTextures(device, textureFileNames))
+                return false;
+
+            return true;
+        }
+        
+        // Single texture version
+        public bool Initialize(D3D11.Device device, string modelFileName, string texFileName, bool convertFromObj = false)
+        {
+            // ObjLoader usage
+            if (convertFromObj)
+            {
+                ObjLoader.ObjLoader objLoader = new ObjLoader.ObjLoader(DSystemConfiguration.ModelFilePath + modelFileName);
+                objLoader.ImportObj(DSystemConfiguration.ModelFilePath + "converted" + modelFileName);
+
+                // Load model data
+                if (!LoadModel("converted" + modelFileName))
+                    return false;
+            }
+            else
+            {
+                if (!LoadModel(modelFileName))
+                    return false;
+            }
+
+            if (!InitializeBuffers(device))
+                return false;
+
+            if (!LoadTexture(device, texFileName))
                 return false;
 
             return true;
@@ -211,13 +241,13 @@ namespace SharpDXPractice.Graphics
         }
 
         #region Old LoadTexture method
-        //private bool LoadTexture(D3D11.Device device, string texFileName)
-        //{
-        //    texFileName = DSystemConfiguration.TextureFilePath + texFileName;
-        //    Texture = new DTexture();
+        private bool LoadTexture(D3D11.Device device, string texFileName)
+        {
+            texFileName = DSystemConfiguration.TextureFilePath + texFileName;
+            Texture = new DTexture();
 
-        //    return Texture.Initialize(device, texFileName);
-        //}
+            return Texture.Initialize(device, texFileName);
+        }
         #endregion
 
         private bool LoadTextures(Device device, string[] textureFileNames)
