@@ -165,189 +165,46 @@ namespace SharpDXPractice.Graphics
             D3D = null;
         }
 
-        //public bool Frame(int mouseX, int mouseY, string pressedKeys, /* Performance */ int fps, int cpuUsage, float frameTime, DPosition position, bool pulseCursorColor = true)
-        //{
-        //    bool resultMouse = true, resultKeyboard = true;
-        //    //Rotate();
-
-        //    // Set the location of the mouse
-        //    if (!Text.SetMousePosition(mouseX, mouseY, D3D.DeviceContext))
-        //        resultMouse = false;
-
-        //    // Set the keys currently being pressed
-        //    if (!Text.SetPressedKeys(pressedKeys, D3D.DeviceContext))
-        //        resultKeyboard = false;
-
-        //    // Set the location of the mouse for the cursor object
-        //    if (!Cursor.SetMousePositionAndColor(mouseX, mouseY, red, green, blue, D3D.DeviceContext))
-        //        return false;
-
-        //    // Pulse cursor colour
-        //    if (pulseCursorColor)
-        //        PulseCursorColor();
-
-        //    // Set the FPS
-        //    if (!Text.SetFps(fps, D3D.DeviceContext))
-        //        return false;
-
-        //    // Set the CPU usage
-        //    if (!Text.SetCpuUsage(cpuUsage, D3D.DeviceContext))
-        //        return false;
-
-        //    // Set the position of the camera
-        //    Camera.SetPosition(0, 0, -10f);
-
-        //    // Set the rotation of the camera
-        //    Camera.SetRotation(0, position.RotationY, 0);
-
-        //    //return Render(rotation);
-        //    return (resultMouse | resultKeyboard);
-        //}
-
-        public bool Frame(DPosition position)
+        public bool Frame(int mouseX, int mouseY, string pressedKeys, /* Performance */ int fps, int cpuUsage, float frameTime, DPosition position, bool pulseCursorColor = true)
         {
+            bool resultMouse = true, resultKeyboard = true;
+            //Rotate();
+
+            // Set the location of the mouse
+            if (!Text.SetMousePosition(mouseX, mouseY, D3D.DeviceContext))
+                resultMouse = false;
+
+            // Set the keys currently being pressed
+            if (!Text.SetPressedKeys(pressedKeys, D3D.DeviceContext))
+                resultKeyboard = false;
+
+            // Set the location of the mouse for the cursor object
+            if (!Cursor.SetMousePositionAndColor(mouseX, mouseY, red, green, blue, D3D.DeviceContext))
+                return false;
+
+            // Pulse cursor colour
+            if (pulseCursorColor)
+                PulseCursorColor();
+
+            // Set the FPS
+            if (!Text.SetFps(fps, D3D.DeviceContext))
+                return false;
+
+            // Set the CPU usage
+            if (!Text.SetCpuUsage(cpuUsage, D3D.DeviceContext))
+                return false;
+
+            // Set the position of the camera
             Camera.SetPosition(0, 0, -5f);
 
+            // Set the rotation of the camera
             Camera.SetRotation(0, position.RotationY, 0);
 
-            return true;
+            //return Render(rotation);
+            return (resultMouse | resultKeyboard);
         }
 
         #region Render everything (messy method)
-        //public bool Render(int mouseX, int mouseY)
-        //{
-        //    Matrix viewMatrix, projectionMatrix, worldMatrix3D, worldMatrix2D, orthoMatrix;
-
-        //    // Clear the buffers to begin the scene
-        //    D3D.BeginScene(0.3f, 0, 0.1f, 1.0f);
-
-        //    // Generate view matrix based on camera's position
-        //    Camera.Render();
-
-        //    // Get the world, view and projection matrices from the camera and D3D objects
-        //    viewMatrix = Camera.ViewMatrix;
-        //    worldMatrix3D = D3D.WorldMatrix;
-        //    worldMatrix2D = D3D.WorldMatrix;
-        //    projectionMatrix = D3D.ProjectionMatrix;
-
-        //    // Get ortho matrix
-        //    orthoMatrix = D3D.OrthoMatrix;
-
-        //    #region Frustum culling
-        //    D3D.TurnOffAlphaBlending();
-        //    D3D.TurnZBufferOn();
-
-        //    // Construct the frustum
-        //    Frustum.ConstructFrustum(DSystemConfiguration.ScreenDepth, projectionMatrix, viewMatrix);
-
-        //    // Initialize the count of the models that have been rendered
-        //    var renderCount = 0;
-
-        //    Vector3 position;
-        //    Vector4 color;
-
-        //    // Go through every model, and render them only if they can be seen
-        //    for (int i = 0; i < ModelList.ModelCount; i++)
-        //    {
-        //        // Get the position and color of the sphere model at this index
-        //        ModelList.GetData(i, out position, out color);
-
-        //        // Adjust the position of the moel before checking whether it
-        //        // is in view
-        //        position = Vector3.TransformCoordinate(position, worldMatrix3D);
-
-        //        // Set the radius of the sphere to 1.0
-        //        var radius = 1.0f;
-
-        //        // If the model can be seen, render it
-        //        if (Frustum.CheckSphere(position, radius))
-        //        {
-        //            // Move the model to the location it should be rendered at
-        //            worldMatrix3D *= Matrix.Translation(position);
-
-        //            // Put the model vertex and index buffers on the graphics pipeline
-        //            Model.Render(D3D.DeviceContext);
-
-        //            // Render the model using the colour shader
-        //            if (!LightShader.Render(D3D.DeviceContext, Model.IndexCount,
-        //                worldMatrix3D, viewMatrix, projectionMatrix, Model.Texture.TextureResource,
-        //                Light.direction, /* Light.diffuseColor */ color, Light.ambientColor, Light.specularPower, Light.specularColor,
-        //                Camera.GetPosition()))
-        //                return false;
-
-        //            // Reset world matrix
-        //            worldMatrix3D = D3D.WorldMatrix * Matrix.RotationY(rotation);
-
-        //            // This model was rendered; increase the count
-        //            renderCount++;
-        //        }
-        //    }
-        //    // Set the number of models rendered this frame
-        //    if (!Text.SetRenderCount(renderCount, D3D.DeviceContext))
-        //        return false;
-        //    #endregion
-
-        //    #region 3D rendering
-        //    //D3D.TurnOffAlphaBlending();
-        //    //D3D.TurnZBufferOn(); // Begin 3D rendering
-        //    //// Rotate the world matrix by the rotation value (makes model spin)
-        //    //Matrix.RotationY(rotation, out worldMatrix3D);
-
-        //    //// Put the model vertex and index buffers on the graphics pipeline to prepare them from drawing
-        //    //Model.Render(D3D.DeviceContext);
-
-        //    //// Render the model using the colour shader
-        //    //if (!LightShader.Render(D3D.DeviceContext,
-        //    //    Model.IndexCount,
-        //    //    worldMatrix3D, viewMatrix, projectionMatrix,
-        //    //    Model.Texture.TextureResource,
-        //    //    Light.direction, Light.diffuseColor, Light.ambientColor,
-        //    //    Light.specularPower, Light.specularColor,
-        //    //    Camera.GetPosition()))
-        //    //{
-        //    //    MessageBox.Show("Texture shader failed");
-        //    //    return false;
-        //    //}
-        //    #endregion
-
-
-        //    #region 2D rendering
-        //    /*
-        //    D3D.TurnZBufferOff();
-
-        //    if (!Bitmap.Render(D3D.DeviceContext, 100, 100))
-        //    {
-        //        return false;
-        //    }
-
-        //    if (!TextureShader.Render(D3D.DeviceContext, Bitmap.IndexCount, worldMatrix, viewMatrix, orthoMatrix, Bitmap.Texture.TextureResource))
-        //        return false;
-        //    */
-        //    #endregion
-
-        //    #region 2D text rendering
-        //    D3D.TurnZBufferOff(); // Begin 2D rendering
-        //    D3D.TurnOnAlphaBlending();
-
-        //    if (!Text.Render(D3D.DeviceContext, worldMatrix2D, orthoMatrix))
-        //        return false;
-        //    #endregion
-
-        //    #region 2D cursor rendering
-        //    if (!Cursor.Render(D3D.DeviceContext, worldMatrix2D, orthoMatrix))
-        //        return false;
-        //    #endregion
-
-        //    D3D.TurnZBufferOn();
-        //    D3D.TurnOffAlphaBlending();
-
-        //    // Present the rendered scene to the screen
-        //    D3D.EndScene();
-
-        //    return true;
-        //}
-        #endregion
-
         public bool Render()
         {
             Matrix viewMatrix, projectionMatrix, worldMatrix3D, worldMatrix2D, orthoMatrix;
@@ -373,7 +230,7 @@ namespace SharpDXPractice.Graphics
 
             // Construct the frustum
             Frustum.ConstructFrustum(DSystemConfiguration.ScreenDepth, projectionMatrix, viewMatrix);
-            
+
             // Initialize the count of the models that have been rendered
             var renderCount = 0;
 
@@ -421,11 +278,54 @@ namespace SharpDXPractice.Graphics
                 return false;
             #endregion
 
-            #region Text rendering
+            #region 3D rendering
+            //D3D.TurnOffAlphaBlending();
+            //D3D.TurnZBufferOn(); // Begin 3D rendering
+            //// Rotate the world matrix by the rotation value (makes model spin)
+            //Matrix.RotationY(rotation, out worldMatrix3D);
+
+            //// Put the model vertex and index buffers on the graphics pipeline to prepare them from drawing
+            //Model.Render(D3D.DeviceContext);
+
+            //// Render the model using the colour shader
+            //if (!LightShader.Render(D3D.DeviceContext,
+            //    Model.IndexCount,
+            //    worldMatrix3D, viewMatrix, projectionMatrix,
+            //    Model.Texture.TextureResource,
+            //    Light.direction, Light.diffuseColor, Light.ambientColor,
+            //    Light.specularPower, Light.specularColor,
+            //    Camera.GetPosition()))
+            //{
+            //    MessageBox.Show("Texture shader failed");
+            //    return false;
+            //}
+            #endregion
+
+
+            #region 2D rendering
+            /*
             D3D.TurnZBufferOff();
+
+            if (!Bitmap.Render(D3D.DeviceContext, 100, 100))
+            {
+                return false;
+            }
+
+            if (!TextureShader.Render(D3D.DeviceContext, Bitmap.IndexCount, worldMatrix, viewMatrix, orthoMatrix, Bitmap.Texture.TextureResource))
+                return false;
+            */
+            #endregion
+
+            #region 2D text rendering
+            D3D.TurnZBufferOff(); // Begin 2D rendering
             D3D.TurnOnAlphaBlending();
 
-            if (!Text.Render(D3D.DeviceContext, D3D.WorldMatrix, orthoMatrix))
+            if (!Text.Render(D3D.DeviceContext, worldMatrix2D, orthoMatrix))
+                return false;
+            #endregion
+
+            #region 2D cursor rendering
+            if (!Cursor.Render(D3D.DeviceContext, worldMatrix2D, orthoMatrix))
                 return false;
             #endregion
 
@@ -437,6 +337,97 @@ namespace SharpDXPractice.Graphics
 
             return true;
         }
+        #endregion
+
+        //public bool Render()
+        //{
+        //    Matrix viewMatrix, projectionMatrix, worldMatrix3D, worldMatrix2D, orthoMatrix;
+
+        //    // Clear the buffers to begin the scene
+        //    D3D.BeginScene(0.3f, 0, 0.1f, 1.0f);
+
+        //    // Generate view matrix based on camera's position
+        //    Camera.Render();
+
+        //    // Get the world, view and projection matrices from the camera and D3D objects
+        //    viewMatrix = Camera.ViewMatrix;
+        //    worldMatrix3D = D3D.WorldMatrix;
+        //    worldMatrix2D = D3D.WorldMatrix;
+        //    projectionMatrix = D3D.ProjectionMatrix;
+
+        //    // Get ortho matrix
+        //    orthoMatrix = D3D.OrthoMatrix;
+
+        //    #region Frustum culling
+        //    D3D.TurnOffAlphaBlending();
+        //    D3D.TurnZBufferOn();
+
+        //    // Construct the frustum
+        //    Frustum.ConstructFrustum(DSystemConfiguration.ScreenDepth, projectionMatrix, viewMatrix);
+            
+        //    // Initialize the count of the models that have been rendered
+        //    var renderCount = 0;
+
+        //    Vector3 position;
+        //    Vector4 color;
+
+        //    // Go through every model, and render them only if they can be seen
+        //    for (int i = 0; i < ModelList.ModelCount; i++)
+        //    {
+        //        // Get the position and color of the sphere model at this index
+        //        ModelList.GetData(i, out position, out color);
+
+        //        // Adjust the position of the moel before checking whether it
+        //        // is in view
+        //        position = Vector3.TransformCoordinate(position, worldMatrix3D);
+
+        //        // Set the radius of the sphere to 1.0
+        //        var radius = 1.0f;
+
+        //        // If the model can be seen, render it
+        //        if (Frustum.CheckSphere(position, radius))
+        //        {
+        //            // Move the model to the location it should be rendered at
+        //            worldMatrix3D *= Matrix.Translation(position);
+
+        //            // Put the model vertex and index buffers on the graphics pipeline
+        //            Model.Render(D3D.DeviceContext);
+
+        //            // Render the model using the colour shader
+        //            if (!LightShader.Render(D3D.DeviceContext, Model.IndexCount,
+        //                worldMatrix3D, viewMatrix, projectionMatrix, Model.Texture.TextureResource,
+        //                Light.direction, /* Light.diffuseColor */ color, Light.ambientColor, Light.specularPower, Light.specularColor,
+        //                Camera.GetPosition()))
+        //                return false;
+
+        //            // Reset world matrix
+        //            worldMatrix3D = D3D.WorldMatrix * Matrix.RotationY(rotation);
+
+        //            // This model was rendered; increase the count
+        //            renderCount++;
+        //        }
+        //    }
+        //    // Set the number of models rendered this frame
+        //    if (!Text.SetRenderCount(renderCount, D3D.DeviceContext))
+        //        return false;
+        //    #endregion
+
+        //    #region Text rendering
+        //    D3D.TurnZBufferOff();
+        //    D3D.TurnOnAlphaBlending();
+
+        //    if (!Text.Render(D3D.DeviceContext, D3D.WorldMatrix, orthoMatrix))
+        //        return false;
+        //    #endregion
+
+        //    D3D.TurnZBufferOn();
+        //    D3D.TurnOffAlphaBlending();
+
+        //    // Present the rendered scene to the screen
+        //    D3D.EndScene();
+
+        //    return true;
+        //}
 
         private void PulseCursorColor()
         {
